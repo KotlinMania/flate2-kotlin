@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "flate2-kotlin"
+
