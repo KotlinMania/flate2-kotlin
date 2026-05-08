@@ -159,7 +159,7 @@ shall be dual licensed as above, without any additional terms or conditions.
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:flate2-kotlin:0.1.0-SNAPSHOT")
+    implementation("io.github.kotlinmania:flate2-kotlin:0.1.0")
 }
 ```
 
