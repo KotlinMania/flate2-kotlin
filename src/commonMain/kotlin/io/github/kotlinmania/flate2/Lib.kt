@@ -1,4 +1,4 @@
-// port-lint: source src/lib.rs
+// port-lint: source lib.rs
 package io.github.kotlinmania.flate2
 
 /**
@@ -12,69 +12,71 @@ package io.github.kotlinmania.flate2
  *  * gzip
  *
  * These three formats are all closely related and largely only differ in their
- * headers/footers. This crate has three types in each submodule for dealing
+ * headers/footers. This library has three types in each submodule for dealing
  * with these three formats.
  *
- * # Implementation
+ * ## Implementation
  *
- * In addition to supporting three formats, this crate supports several different
- * backends, controlled through this crate's *features flags*:
+ * In addition to supporting three formats, this library supports several different
+ * backends, controlled through feature flags:
  *
- *  * `default`, or `rust_backend` - this implementation currently uses the `miniz_oxide`
- *    crate which is a port of `miniz.c` to Rust. This feature does not
- *    require a C compiler, and only uses safe Rust code.
+ *  * the default backend — currently a pure-Kotlin port of the MinizOxide
+ *    algorithm, which is itself a port of miniz.c to Rust. This backend
+ *    requires no native code and uses only safe Kotlin.
  *
- *    Note that the `rust_backend` feature may at some point be switched to use `zlib-rs`,
- *    and that `miniz_oxide` should be used explicitly if this is not desired.
+ *    Note: the default backend may at some point be switched to a ZlibRs
+ *    based implementation; use the MinizOxide backend explicitly if
+ *    that is not desired.
  *
- *  * `zlib-rs` - this implementation utilizes the `zlib-rs` crate, a Rust rewrite of zlib.
- *    This backend is the fastest, at the cost of some `unsafe` Rust code.
+ *  * ZlibRs — a Rust rewrite of zlib, offered as the fastest backend
+ *    at the cost of some native code.
  *
  * Several backends implemented in C are also available.
  * These are useful in case you are already using a specific C implementation
  * and need the result of compression to be bit-identical.
- * See the crate's README for details on the available C backends.
+ * See the library's README for details on the available C backends.
  *
- * The `zlib-rs` backend typically outperforms all the C implementations.
+ * The ZlibRs backend typically outperforms all the C implementations.
  *
- * # Feature Flags
+ * ## Feature Flags
  *
- * Activate the `document-features` cargo feature to see feature docs here.
+ * Activate the document-features cargo feature to see feature docs in the
+ * upstream Rust documentation.
  *
  * ## Ambiguous feature selection
  *
  * As Cargo features are additive, while backends are not, there is an order in which backends
- * become active if multiple are selected.
+ * become active if multiple are selected:
  *
- *  * zlib-ng
- *  * zlib-rs
- *  * cloudflare_zlib
- *  * miniz_oxide
+ *  * ZlibNg
+ *  * ZlibRs
+ *  * CloudflareZlib
+ *  * MinizOxide
  *
- * # Organization
+ * ## Organization
  *
- * This crate consists of three main modules: `bufread`, `read`, and `write`. Each module
+ * This library consists of three main modules: [bufread], [read], and [write]. Each module
  * implements DEFLATE, zlib, and gzip for buffered-read input types, read input
  * types, and write output types respectively.
  *
- * Use the `bufread` implementations if you can provide a buffered-read type for the input.
+ * Use the [bufread] implementations if you can provide a buffered-read type for the input.
  *
- * The `read` implementations conveniently wrap a read type in a buffered-read implementation.
- * However, the `read` implementations may
+ * The [read] implementations conveniently wrap a read type in a buffered-read implementation.
+ * However, the [read] implementations may
  * [read past the end of the input data](https://github.com/rust-lang/flate2-rs/issues/338),
  * making the read type useless for subsequent reads of the input. If you need to re-use the
- * read type, wrap it in a buffered reader, use the `bufread` implementations,
+ * read type, wrap it in a buffered reader, use the [bufread] implementations,
  * and perform subsequent reads on the buffered reader.
  *
- * The `write` implementations are most useful when there is no way to create a buffered-read
+ * The [write] implementations are most useful when there is no way to create a buffered-read
  * type, notably when reading async iterators (streams).
  *
- * Note that types which operate over a specific trait often implement the mirroring trait as well.
+ * Note that types which operate over a specific interface often implement the mirroring interface as well.
  * For example a `bufread.DeflateDecoder<T>` *also* exposes write capabilities if `T` is a
- * writable sink. That is, the "dual trait" is forwarded directly to the underlying object if
+ * writable sink. That is, the "dual interface" is forwarded directly to the underlying object if
  * available.
  *
- * # About multi-member Gzip files
+ * ## About multi-member Gzip files
  *
  * While most `gzip` files one encounters will have a single *member* that can be read
  * with the `GzDecoder`, there may be some files which have multiple members.
@@ -93,12 +95,12 @@ package io.github.kotlinmania.flate2
 
 /**
  * When compressing data, the compression level can be specified by a value in
- * this struct.
+ * this class.
  */
 public class Compression private constructor(private val level: UInt) {
 
     /** Returns an integer representing the compression level, typically on a
-     *  scale of 0-9. See [new] for details about compression levels. */
+     *  scale of 0-9. See [Companion.new] for details about compression levels. */
     public fun level(): UInt = level
 
     override fun equals(other: Any?): Boolean = other is Compression && other.level == level
