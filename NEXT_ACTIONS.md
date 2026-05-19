@@ -4,14 +4,14 @@ Based on AST analysis, here are the concrete next steps.
 
 ## Summary
 
-- **Files Present:** 3/21 (14.3%)
-- **Function parity:** 30/399 matched (target 57) — 7.5%
-- **Class/type parity:** 5/54 matched (target 6) — 9.3%
-- **Combined symbol parity:** 35/453 matched (target 63) — 7.7%
-- **Average inline-code cosine:** 0.64 (function body across 3 matched files)
-- **Average documentation cosine:** 0.50 (doc text across 3 matched files)
+- **Files Present:** 4/21 (19.0%)
+- **Function parity:** 52/386 matched (target 128) — 13.5%
+- **Class/type parity:** 13/54 matched (target 23) — 24.1%
+- **Combined symbol parity:** 65/440 matched (target 151) — 14.8%
+- **Average inline-code cosine:** 0.59 (function body across 4 matched files)
+- **Average documentation cosine:** 0.59 (doc text across 4 matched files)
 - **Cheat-zeroed Files:** 0
-- **Critical Issues:** 2 files with <0.60 function similarity
+- **Critical Issues:** 3 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -27,7 +27,19 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. bufreader
+### 1. mem
+
+- **Target:** `flate2.Mem`
+- **Similarity:** 0.46
+- **Dependents:** 7
+- **Priority Score:** 7033305.5
+- **Functions:** 22/25 matched (target 71)
+- **Missing functions:** `from`, `fmt`, `write_to_spare_capacity_of_vec`
+- **Types:** 8/8 matched (target 17)
+- **Missing types:** _none_
+- **Tests:** 3/3 matched
+
+### 2. bufreader
 
 - **Target:** `flate2.Bufreader`
 - **Similarity:** 0.59
@@ -38,7 +50,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 2. lib
+### 3. lib
 
 - **Target:** `flate2.Lib`
 - **Similarity:** 0.57
@@ -50,7 +62,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Missing types:** _none_
 - **Tests:** 0/1 matched
 
-### 3. crc
+### 4. crc
 
 - **Target:** `flate2.Crc`
 - **Similarity:** 0.75
