@@ -52,6 +52,11 @@ public class Crc private constructor(
     }
 
     override fun toString(): String = "Crc(sum=${sum()}, amount=$amt)"
+
+    public companion object {
+        /** Create a new CRC accumulator. */
+        public fun new(): Crc = Crc()
+    }
 }
 
 /**
@@ -72,10 +77,24 @@ public class CrcReader<R>(
     /** Get the reader that is wrapped by this reader by reference. */
     public fun getRef(): R = inner
 
+    /** Get the reader that is wrapped by this reader by mutable reference. */
+    public fun getMut(): R = inner
+
     /** Reset the CRC in this reader. */
     public fun reset() {
         crc.reset()
     }
+
+    /**
+     * Read bytes from the wrapped reader into [buffer], update the CRC with
+     * whatever was read, and return the count.
+     */
+    public fun read(
+        buffer: ByteArray,
+        offset: Int = 0,
+        length: Int = buffer.size - offset,
+        readFn: (R, ByteArray, Int, Int) -> Int,
+    ): Int = read(inner, buffer, offset, length, readFn)
 
     /**
      * Read bytes from [source] into [buffer] starting at [offset] for [length]
@@ -96,7 +115,41 @@ public class CrcReader<R>(
     }
 
     override fun toString(): String = "CrcReader(crc=$crc)"
+
+    public companion object {
+        /** Create a new CRC reader. */
+        public fun <R> new(reader: R): CrcReader<R> = CrcReader(reader)
+    }
 }
+
+/** Return the currently buffered bytes from the wrapped buffered source. */
+public fun <R> CrcReader<R>.fillBuffer(): ByteArray where R : BufferedSource =
+    getMut().fillBuffer()
+
+/** Return the currently buffered bytes from the wrapped buffered source. */
+public fun <R> CrcReader<R>.fillBuf(): ByteArray where R : BufferedSource =
+    fillBuffer()
+
+/** Consume bytes from the wrapped buffered source and include them in the CRC. */
+public fun <R> CrcReader<R>.consume(amount: Int) where R : BufferedSource {
+    require(amount >= 0) { "amount must be non-negative" }
+    val data = getMut().fillBuffer()
+    require(amount <= data.size) { "amount exceeds buffered byte count" }
+    if (amount > 0) {
+        crc().update(data.copyOfRange(0, amount))
+    }
+    getMut().consume(amount)
+}
+
+/** Read bytes from the wrapped source and include them in the CRC. */
+public fun <R> CrcReader<R>.read(
+    buffer: ByteArray,
+    offset: Int = 0,
+    length: Int = buffer.size - offset,
+): Int where R : InputSource =
+    read(buffer, offset, length) { source, sink, at, count ->
+        source.read(sink, at, count)
+    }
 
 /**
  * A wrapper around a writable sink that calculates the CRC-32 of all
@@ -116,10 +169,24 @@ public class CrcWriter<W>(
     /** Get the writer that is wrapped by this writer by reference. */
     public fun getRef(): W = inner
 
+    /** Get the writer that is wrapped by this writer by mutable reference. */
+    public fun getMut(): W = inner
+
     /** Reset the CRC in this writer. */
     public fun reset() {
         crc.reset()
     }
+
+    /**
+     * Write bytes to the wrapped writer, update the CRC with whatever was
+     * written, and return the count.
+     */
+    public fun write(
+        buffer: ByteArray,
+        offset: Int = 0,
+        length: Int = buffer.size - offset,
+        writeFn: (W, ByteArray, Int, Int) -> Int,
+    ): Int = write(inner, buffer, offset, length, writeFn)
 
     /**
      * Write bytes to [sink] from [buffer] starting at [offset] for [length]
@@ -140,6 +207,26 @@ public class CrcWriter<W>(
     }
 
     override fun toString(): String = "CrcWriter(crc=$crc)"
+
+    public companion object {
+        /** Create a new CRC writer. */
+        public fun <W> new(writer: W): CrcWriter<W> = CrcWriter(writer)
+    }
+}
+
+/** Write bytes to the wrapped sink and include them in the CRC. */
+public fun <W> CrcWriter<W>.write(
+    buffer: ByteArray,
+    offset: Int = 0,
+    length: Int = buffer.size - offset,
+): Int where W : OutputSink =
+    write(buffer, offset, length) { sink, source, at, count ->
+        sink.write(source, at, count)
+    }
+
+/** Flush the wrapped sink. */
+public fun <W> CrcWriter<W>.flush() where W : OutputSink {
+    getMut().flush()
 }
 
 /**

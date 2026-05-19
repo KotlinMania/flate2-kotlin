@@ -5,13 +5,13 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 3/21 (14.3%)
-- **Function parity:** 22/399 matched (target 41) — 5.5%
+- **Function parity:** 30/399 matched (target 57) — 7.5%
 - **Class/type parity:** 5/54 matched (target 6) — 9.3%
-- **Combined symbol parity:** 27/453 matched (target 47) — 6.0%
-- **Average inline-code cosine:** 0.52 (function body across 3 matched files)
-- **Average documentation cosine:** 0.49 (doc text across 3 matched files)
+- **Combined symbol parity:** 35/453 matched (target 63) — 7.7%
+- **Average inline-code cosine:** 0.64 (function body across 3 matched files)
+- **Average documentation cosine:** 0.50 (doc text across 3 matched files)
 - **Cheat-zeroed Files:** 0
-- **Critical Issues:** 3 files with <0.60 function similarity
+- **Critical Issues:** 2 files with <0.60 function similarity
 
 ## Priority 1: Fix Incomplete High-Dependency Files
 
@@ -30,26 +30,15 @@ Every matched file is listed below with function and type symbol parity.
 ### 1. bufreader
 
 - **Target:** `flate2.Bufreader`
-- **Similarity:** 0.45
+- **Similarity:** 0.59
 - **Dependents:** 4
-- **Priority Score:** 4041105.5
-- **Functions:** 6/10 matched (target 8)
-- **Missing functions:** `fmt`, `new`, `with_buf`, `fill_buf`
+- **Priority Score:** 4011104.0
+- **Functions:** 9/10 matched (target 11)
+- **Missing functions:** `fmt`
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 
-### 2. crc
-
-- **Target:** `flate2.Crc`
-- **Similarity:** 0.54
-- **Dependents:** 0
-- **Priority Score:** 51804.6
-- **Functions:** 10/15 matched (target 24)
-- **Missing functions:** `new`, `get_mut`, `fill_buf`, `consume`, `flush`
-- **Types:** 3/3 matched (target 4)
-- **Missing types:** _none_
-
-### 3. lib
+### 2. lib
 
 - **Target:** `flate2.Lib`
 - **Similarity:** 0.57
@@ -60,6 +49,17 @@ Every matched file is listed below with function and type symbol parity.
 - **Types:** 1/1 matched
 - **Missing types:** _none_
 - **Tests:** 0/1 matched
+
+### 3. crc
+
+- **Target:** `flate2.Crc`
+- **Similarity:** 0.75
+- **Dependents:** 0
+- **Priority Score:** 1802.5
+- **Functions:** 15/15 matched (target 37)
+- **Missing functions:** _none_
+- **Types:** 3/3 matched (target 4)
+- **Missing types:** _none_
 
 ## Success Criteria
 

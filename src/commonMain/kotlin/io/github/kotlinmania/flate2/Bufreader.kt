@@ -16,9 +16,11 @@ public class BufReader<R : InputSource> internal constructor(
     private val buf: ByteArray,
     private var pos: Int = 0,
     private var cap: Int = 0,
-) {
+) : BufferedSource {
 
     public constructor(inner: R) : this(inner, ByteArray(DEFAULT_BUF_SIZE))
+
+    public constructor(buffer: ByteArray, inner: R) : this(inner, buffer.copyOf())
 
     override fun toString(): String =
         "BufReader(reader=$inner, buffer=${cap - pos}/${buf.size})"
@@ -50,7 +52,7 @@ public class BufReader<R : InputSource> internal constructor(
      * If the internal buffer is empty and the requested read is larger than
      * the buffer, bypasses buffering and reads directly from the source.
      */
-    public fun read(sink: ByteArray, offset: Int = 0, length: Int = sink.size - offset): Int {
+    override fun read(sink: ByteArray, offset: Int, length: Int): Int {
         if (pos == cap && length >= buf.size) {
             return inner.read(sink, offset, length)
         }
@@ -67,7 +69,7 @@ public class BufReader<R : InputSource> internal constructor(
      * If the buffer is exhausted, reads more data from the underlying source
      * into the internal buffer first.
      */
-    public fun fillBuffer(): ByteArray {
+    override fun fillBuffer(): ByteArray {
         if (pos == cap) {
             cap = inner.read(buf, 0, buf.size)
             pos = 0
@@ -76,12 +78,23 @@ public class BufReader<R : InputSource> internal constructor(
         return buf.copyOfRange(pos, cap)
     }
 
+    /** Return a copy of the currently buffered data. */
+    public fun fillBuf(): ByteArray = fillBuffer()
+
     /** Mark [amount] bytes from the buffer as consumed. */
-    public fun consume(amount: Int) {
+    override fun consume(amount: Int) {
+        require(amount >= 0) { "amount must be non-negative" }
         pos = min(pos + amount, cap)
     }
 
     public companion object {
         internal const val DEFAULT_BUF_SIZE: Int = 32 * 1024
+
+        /** Create a buffered reader with the default internal buffer size. */
+        public fun <R : InputSource> new(inner: R): BufReader<R> = BufReader(inner)
+
+        /** Create a buffered reader using [buffer] as the initial buffer storage. */
+        public fun <R : InputSource> withBuf(buffer: ByteArray, inner: R): BufReader<R> =
+            BufReader(buffer, inner)
     }
 }
