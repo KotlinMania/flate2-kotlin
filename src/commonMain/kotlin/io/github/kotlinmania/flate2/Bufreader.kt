@@ -8,7 +8,7 @@ import kotlin.math.min
  * internal buffer to satisfy small reads efficiently.
  *
  * This class mirrors the upstream `BufReader<R>` which wraps a `Read`
- * implementor. The upstream uses `std::io::BufReader` — this port provides
+ * implementor. The upstream uses its standard buffered reader; this port provides
  * the same buffering contract for [InputSource] types.
  */
 public class BufReader<R : InputSource> internal constructor(

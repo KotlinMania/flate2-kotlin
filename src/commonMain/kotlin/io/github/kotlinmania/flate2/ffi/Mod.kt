@@ -74,7 +74,8 @@ public object MinizOxideModule
 public val *Reexport = "this.minizOxide.*"
 
 // If no backend is enabled, fail fast with a clear error message.
-compileError!("No compression backend selected; enable one of `zlib`, `zlib-ng`, `zlib-rs`, or the default `rustBackend` feature.")
+private val backendSelectionError: String =
+    "No compression backend selected; enable a zlib-compatible backend or the default Kotlin backend feature."
 
 public object ErrorMessageImpl {
     private fun fmt(f: fmt.Formatter): Result<Unit> {

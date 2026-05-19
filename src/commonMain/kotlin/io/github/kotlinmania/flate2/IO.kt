@@ -1,6 +1,6 @@
 // port-lint: ignore
 // Minimal blocking I/O interfaces for flate2-kotlin, mirroring the upstream
-// Rust std::io::{Read, Write, BufRead} traits in a multiplatform-safe way.
+// read, write, and buffered-read traits in a multiplatform-safe way.
 package io.github.kotlinmania.flate2
 
 /**
