@@ -1,5 +1,5 @@
 {
-  "type": "port",
+  "parity_mode": false,
   "name": "flate2-kotlin",
   "source": {
     "path": "tmp/flate2/src",
