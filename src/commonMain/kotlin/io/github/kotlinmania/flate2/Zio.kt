@@ -19,7 +19,7 @@ package io.github.kotlinmania.flate2
  */
 public class Writer<W : OutputSink, D : CodecOps>(
     private var obj: W?,
-    public val data: D,
+    public var data: D,
 ) {
     private val buf: MutableList<Byte> = ArrayList(DEFAULT_BUF_SIZE)
 
@@ -253,7 +253,7 @@ public fun Result<Status>.toCodecResult(): CodecResult = fold(
 )
 
 /** [Compress] adapter implementing [CodecOps]. */
-public class CompressOps(private val compress: Compress) : CodecOps {
+public class CompressOps(internal val compress: Compress) : CodecOps {
     override fun totalIn(): ULong = compress.totalIn()
     override fun totalOut(): ULong = compress.totalOut()
     override fun run(input: ByteArray, output: ByteArray, flush: FlushKind): CodecResult =
@@ -268,7 +268,7 @@ public class CompressOps(private val compress: Compress) : CodecOps {
 }
 
 /** [Decompress] adapter implementing [CodecOps]. */
-public class DecompressOps(private val decompress: Decompress) : CodecOps {
+public class DecompressOps(internal val decompress: Decompress) : CodecOps {
     override fun totalIn(): ULong = decompress.totalIn()
     override fun totalOut(): ULong = decompress.totalOut()
     override fun run(input: ByteArray, output: ByteArray, flush: FlushKind): CodecResult =
