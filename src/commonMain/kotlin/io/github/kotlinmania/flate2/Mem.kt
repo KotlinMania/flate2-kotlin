@@ -989,6 +989,6 @@ private fun decompressDisplayMessage(inner: DecompressErrorInner): String =
 private fun compressDisplayMessage(message: String?): String =
     message?.let { "deflate compression error: $it" } ?: "deflate compression error"
 
-private class DeflateFormatException(message: String) : Exception(message)
+internal class DeflateFormatException(message: String) : Exception(message)
 
-private class NeedsDictionaryException(val adler: UInt) : Exception("requires a dictionary")
+internal class NeedsDictionaryException(val adler: UInt) : Exception("requires a dictionary")
