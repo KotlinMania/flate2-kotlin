@@ -1,4 +1,4 @@
-// port-lint: ignore -- KMP unit tests for the Compression value class defined in src/lib.rs
+// port-lint: tests lib.rs
 package io.github.kotlinmania.flate2
 
 import kotlin.test.Test

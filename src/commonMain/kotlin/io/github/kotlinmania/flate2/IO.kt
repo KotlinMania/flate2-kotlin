@@ -1,4 +1,3 @@
-// port-lint: ignore
 // Minimal blocking I/O interfaces for flate2-kotlin, mirroring the upstream
 // read, write, and buffered-read traits in a multiplatform-safe way.
 package io.github.kotlinmania.flate2
