@@ -214,6 +214,27 @@ public class CrcWriter<W>(
     }
 }
 
+/**
+ * [OutputSink] implementation for [CrcWriter] that delegates to the inner
+ * sink while updating the CRC.
+ */
+public class CrcWriterSink<W : OutputSink>(
+    public val inner: CrcWriter<W>,
+) : OutputSink {
+
+    override fun write(source: ByteArray, offset: Int, length: Int): Int {
+        val n = inner.getMut().write(source, offset, length)
+        if (n > 0) {
+            inner.crc().update(source.copyOfRange(offset, offset + n))
+        }
+        return n
+    }
+
+    override fun flush() {
+        inner.getMut().flush()
+    }
+}
+
 /** Write bytes to the wrapped sink and include them in the CRC. */
 public fun <W> CrcWriter<W>.write(
     buffer: ByteArray,
