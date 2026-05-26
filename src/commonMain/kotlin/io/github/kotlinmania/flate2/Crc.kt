@@ -62,11 +62,15 @@ public class Crc private constructor(
 /**
  * A wrapper around a readable source that calculates the CRC-32 of all
  * bytes read through it.
+ *
+ * When [R] is a [BufferedSource], this class also implements [BufferedSource],
+ * delegating buffer operations to the inner source while tracking CRC on
+ * consumed bytes.
  */
 public class CrcReader<R>(
     private val inner: R,
     private val crc: Crc = Crc(),
-) {
+) : BufferedSource where R : BufferedSource {
 
     /** Get the [Crc] for this reader. */
     public fun crc(): Crc = crc
@@ -86,70 +90,46 @@ public class CrcReader<R>(
     }
 
     /**
-     * Read bytes from the wrapped reader into [buffer], update the CRC with
+     * Read bytes from the wrapped source into [sink], update the CRC with
      * whatever was read, and return the count.
      */
-    public fun read(
-        buffer: ByteArray,
-        offset: Int = 0,
-        length: Int = buffer.size - offset,
-        readFn: (R, ByteArray, Int, Int) -> Int,
-    ): Int = read(inner, buffer, offset, length, readFn)
-
-    /**
-     * Read bytes from [source] into [buffer] starting at [offset] for [length]
-     * bytes, update the CRC with whatever was read, and return the count.
-     */
-    public fun read(
-        source: R,
-        buffer: ByteArray,
-        offset: Int = 0,
-        length: Int = buffer.size - offset,
-        readFn: (R, ByteArray, Int, Int) -> Int,
-    ): Int {
-        val n = readFn(source, buffer, offset, length)
+    override fun read(sink: ByteArray, offset: Int, length: Int): Int {
+        val n = inner.read(sink, offset, length)
         if (n > 0) {
-            crc.update(buffer.copyOfRange(offset, offset + n))
+            crc.update(sink.copyOfRange(offset, offset + n))
         }
         return n
     }
 
+    /**
+     * Return the currently buffered bytes from the wrapped source.
+     * The returned array is a copy of the inner buffer.
+     */
+    override fun fillBuffer(): ByteArray = inner.fillBuffer()
+
+    /**
+     * Consume [amount] bytes from the inner buffer and include them in the CRC.
+     */
+    override fun consume(amount: Int) {
+        require(amount >= 0) { "amount must be non-negative" }
+        val data = inner.fillBuffer()
+        require(amount <= data.size) { "amount exceeds buffered byte count" }
+        if (amount > 0) {
+            crc.update(data.copyOfRange(0, amount))
+        }
+        inner.consume(amount)
+    }
+
+    /** Return the currently buffered bytes (alias for [fillBuffer]). */
+    public fun fillBuf(): ByteArray = fillBuffer()
+
     override fun toString(): String = "CrcReader(crc=$crc)"
 
     public companion object {
-        /** Create a new CRC reader. */
-        public fun <R> new(reader: R): CrcReader<R> = CrcReader(reader)
+        /** Create a new CRC reader wrapping a buffered source. */
+        public fun <R : BufferedSource> new(reader: R): CrcReader<R> = CrcReader(reader)
     }
 }
-
-/** Return the currently buffered bytes from the wrapped buffered source. */
-public fun <R> CrcReader<R>.fillBuffer(): ByteArray where R : BufferedSource =
-    getMut().fillBuffer()
-
-/** Return the currently buffered bytes from the wrapped buffered source. */
-public fun <R> CrcReader<R>.fillBuf(): ByteArray where R : BufferedSource =
-    fillBuffer()
-
-/** Consume bytes from the wrapped buffered source and include them in the CRC. */
-public fun <R> CrcReader<R>.consume(amount: Int) where R : BufferedSource {
-    require(amount >= 0) { "amount must be non-negative" }
-    val data = getMut().fillBuffer()
-    require(amount <= data.size) { "amount exceeds buffered byte count" }
-    if (amount > 0) {
-        crc().update(data.copyOfRange(0, amount))
-    }
-    getMut().consume(amount)
-}
-
-/** Read bytes from the wrapped source and include them in the CRC. */
-public fun <R> CrcReader<R>.read(
-    buffer: ByteArray,
-    offset: Int = 0,
-    length: Int = buffer.size - offset,
-): Int where R : InputSource =
-    read(buffer, offset, length) { source, sink, at, count ->
-        source.read(sink, at, count)
-    }
 
 /**
  * A wrapper around a writable sink that calculates the CRC-32 of all
