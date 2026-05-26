@@ -1,5 +1,8 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source mem.rs
 package io.github.kotlinmania.flate2
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * Raw in-memory compression stream for blocks of data.
@@ -12,6 +15,7 @@ package io.github.kotlinmania.flate2
  * It is recommended to use the I/O stream adapters over this type as they are
  * easier to use.
  */
+@HiddenFromObjC
 public class Compress private constructor(
     private var level: Compression,
     private var format: StreamFormat,
@@ -218,6 +222,7 @@ public class Compress private constructor(
  * It is recommended to use the I/O stream adapters over this type as they are
  * easier to use.
  */
+@HiddenFromObjC
 public class Decompress private constructor(
     private var format: StreamFormat,
     private var windowBits: Int,
@@ -395,6 +400,7 @@ public class Decompress private constructor(
 }
 
 /** Values which indicate the form of flushing to use when compressing in-memory data. */
+@HiddenFromObjC
 public enum class FlushCompress {
     /** A typical parameter for passing to compression and decompression functions. */
     None,
@@ -413,6 +419,7 @@ public enum class FlushCompress {
 }
 
 /** Values which indicate the form of flushing to use when decompressing in-memory data. */
+@HiddenFromObjC
 public enum class FlushDecompress {
     /** A typical parameter for passing to compression and decompression functions. */
     None,
@@ -425,6 +432,7 @@ public enum class FlushDecompress {
 }
 
 /** Possible status results of compressing data or successfully decompressing a block of data. */
+@HiddenFromObjC
 public enum class Status {
     /** Indicates success. */
     Ok,
@@ -437,6 +445,7 @@ public enum class Status {
 }
 
 /** Error returned when a decompression object finds invalid input bytes. */
+@HiddenFromObjC
 public class DecompressError internal constructor(
     internal val inner: DecompressErrorInner,
 ) : Exception(decompressDisplayMessage(inner)) {
@@ -461,6 +470,7 @@ public class DecompressError internal constructor(
 }
 
 /** Error returned when a compression object is used incorrectly or generates an error. */
+@HiddenFromObjC
 public class CompressError internal constructor(
     internal val implementationMessage: String?,
 ) : Exception(compressDisplayMessage(implementationMessage)) {

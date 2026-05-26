@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/bufread.rs
 package io.github.kotlinmania.flate2.gz
 
@@ -14,6 +15,7 @@ import io.github.kotlinmania.flate2.deflate.DeflateDecoder
 import io.github.kotlinmania.flate2.deflate.DeflateEncoder
 import io.github.kotlinmania.flate2.gz.GzHeaderParser.Companion.new as newParser
 import io.github.kotlinmania.flate2.readThroughCodec
+import kotlin.native.HiddenFromObjC
 
 private const val CRC_BYTES_LEN: Int = 8
 
@@ -48,6 +50,7 @@ internal sealed class GzState {
  * A gzip streaming encoder that reads uncompressed data from a buffered source
  * and provides compressed data when read.
  */
+@HiddenFromObjC
 public class GzEncoder<R : BufferedSource> internal constructor(
     internal val inner: DeflateEncoder<CrcReader<R>>,
     internal val headerBytes: ByteArray,
@@ -137,6 +140,7 @@ public class GzEncoder<R : BufferedSource> internal constructor(
  * zero bytes even if there are more bytes available in the underlying reader.
  * Use [intoInner] after a zero-byte read to recover the underlying reader.
  */
+@HiddenFromObjC
 public class GzDecoder<R : BufferedSource> internal constructor(
     internal var state: GzState,
     internal val reader: CrcReader<BufReader<DeflateDecoder<R>>>,
@@ -259,6 +263,7 @@ public class GzDecoder<R : BufferedSource> internal constructor(
 /**
  * A gzip streaming decoder that decodes a gzip file that may have multiple members.
  */
+@HiddenFromObjC
 public class MultiGzDecoder<R : BufferedSource>(internal val inner: GzDecoder<R>) {
     public companion object {
         /** Creates a new [MultiGzDecoder] from a buffered source. */

@@ -1,5 +1,8 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source crc.rs
 package io.github.kotlinmania.flate2
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * Simple CRC-32 checksum bindings backed by the standard reflected polynomial.
@@ -16,6 +19,7 @@ package io.github.kotlinmania.flate2
  * Use [update] to feed data, [sum] to read the current checksum, and [reset]
  * to start over.
  */
+@HiddenFromObjC
 public class Crc private constructor(
     private var amt: UInt,
     private var hasher: Crc32Hasher,
@@ -67,6 +71,7 @@ public class Crc private constructor(
  * delegating buffer operations to the inner source while tracking CRC on
  * consumed bytes.
  */
+@HiddenFromObjC
 public class CrcReader<R>(
     private val inner: R,
     private val crc: Crc = Crc(),
@@ -135,6 +140,7 @@ public class CrcReader<R>(
  * A wrapper around a writable sink that calculates the CRC-32 of all
  * bytes written through it.
  */
+@HiddenFromObjC
 public class CrcWriter<W>(
     private val inner: W,
     private val crc: Crc = Crc(),
@@ -198,6 +204,7 @@ public class CrcWriter<W>(
  * [OutputSink] implementation for [CrcWriter] that delegates to the inner
  * sink while updating the CRC.
  */
+@HiddenFromObjC
 public class CrcWriterSink<W : OutputSink>(
     public val inner: CrcWriter<W>,
 ) : OutputSink {

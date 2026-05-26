@@ -1,9 +1,11 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zlib/read.rs
 package io.github.kotlinmania.flate2.zlib
 
 import io.github.kotlinmania.flate2.BufReader
 import io.github.kotlinmania.flate2.BufferedSource
 import io.github.kotlinmania.flate2.Compression
+import kotlin.native.HiddenFromObjC
 
 /**
  * A zlib encoder, or compressor.
@@ -13,6 +15,7 @@ import io.github.kotlinmania.flate2.Compression
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class ZlibReadEncoder<R : BufferedSource>(
     private val inner: ZlibEncoder<BufReader<R>>,
 ) {
@@ -59,6 +62,7 @@ public class ZlibReadEncoder<R : BufferedSource>(
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class ZlibReadDecoder<R : BufferedSource>(
     private val inner: ZlibDecoder<BufReader<R>>,
 ) {

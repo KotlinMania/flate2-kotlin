@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/read.rs
 package io.github.kotlinmania.flate2.gz
 
@@ -5,6 +6,7 @@ import io.github.kotlinmania.flate2.BufReader
 import io.github.kotlinmania.flate2.BufferedSource
 import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.InputSource
+import kotlin.native.HiddenFromObjC
 
 /**
  * A gzip streaming encoder that reads uncompressed data from a readable source
@@ -12,6 +14,7 @@ import io.github.kotlinmania.flate2.InputSource
  *
  * This wraps a [GzEncoder] around a [BufReader] for convenience.
  */
+@HiddenFromObjC
 public class GzReadEncoder<R : InputSource> internal constructor(
     internal val inner: GzEncoder<BufReader<R>>,
 )
@@ -26,6 +29,7 @@ public fun <R : InputSource> gzReadEncoder(inner: GzEncoder<BufReader<R>>): GzRe
  * After reading a single member of the gzip data this reader will return
  * zero bytes even if there are more bytes available in the underlying source.
  */
+@HiddenFromObjC
 public class GzReadDecoder<R : InputSource> internal constructor(
     internal val inner: GzDecoder<BufReader<R>>,
 ) {
@@ -46,6 +50,7 @@ public class GzReadDecoder<R : InputSource> internal constructor(
  * A gzip streaming decoder that decodes a gzip file with multiple members
  * from a readable source.
  */
+@HiddenFromObjC
 public class MultiGzReadDecoder<R : InputSource> internal constructor(
     internal val inner: MultiGzDecoder<BufReader<R>>,
 ) {

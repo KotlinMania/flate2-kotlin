@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/write.rs
 package io.github.kotlinmania.flate2.gz
 
@@ -13,6 +14,7 @@ import io.github.kotlinmania.flate2.OutputSink
 import io.github.kotlinmania.flate2.Status
 import io.github.kotlinmania.flate2.Writer
 import io.github.kotlinmania.flate2.gz.GzHeaderParser.Companion.new as newParser
+import kotlin.native.HiddenFromObjC
 
 private const val CRC_BYTES_LEN: Int = 8
 
@@ -22,6 +24,7 @@ private const val CRC_BYTES_LEN: Int = 8
  * Call [finish] to complete the compressed stream and retrieve the
  * underlying writer.
  */
+@HiddenFromObjC
 public class GzWriteEncoder<W : OutputSink> internal constructor(
     internal val inner: Writer<W, CompressOps>,
     internal val crc: Crc,
@@ -116,6 +119,7 @@ public class GzWriteEncoder<W : OutputSink> internal constructor(
  * After decoding a single member, subsequent writes will return zero,
  * allowing the caller to handle any data following the gzip member.
  */
+@HiddenFromObjC
 public class GzWriteDecoder<W : OutputSink> internal constructor(
     internal val inner: Writer<CrcWriterSink<W>, DecompressOps>,
     internal val crcBytes: MutableList<Byte>,
@@ -230,6 +234,7 @@ public class GzWriteDecoder<W : OutputSink> internal constructor(
  * A gzip streaming decoder that decodes a gzip file with multiple members,
  * writing uncompressed data to an [OutputSink].
  */
+@HiddenFromObjC
 public class MultiGzWriteDecoder<W : OutputSink> internal constructor(
     internal var inner: GzWriteDecoder<W>,
 ) {

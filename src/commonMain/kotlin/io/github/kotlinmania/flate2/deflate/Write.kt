@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source deflate/write.rs
 package io.github.kotlinmania.flate2.deflate
 
@@ -8,6 +9,7 @@ import io.github.kotlinmania.flate2.Decompress
 import io.github.kotlinmania.flate2.DecompressOps
 import io.github.kotlinmania.flate2.OutputSink
 import io.github.kotlinmania.flate2.Writer
+import kotlin.native.HiddenFromObjC
 
 /**
  * A DEFLATE encoder, or compressor.
@@ -20,6 +22,7 @@ import io.github.kotlinmania.flate2.Writer
  * does not have deterministic destructors — callers must call [finish]
  * explicitly.
  */
+@HiddenFromObjC
 public class DeflateWriteEncoder<W : OutputSink> private constructor(
     private val inner: Writer<W, CompressOps>,
 ) {
@@ -110,6 +113,7 @@ public class DeflateWriteEncoder<W : OutputSink> private constructor(
  *
  * Call [finish] to complete decoding and retrieve the underlying writer.
  */
+@HiddenFromObjC
 public class DeflateWriteDecoder<W : OutputSink> private constructor(
     private val inner: Writer<W, DecompressOps>,
 ) {
