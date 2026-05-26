@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zlib/bufread.rs
 package io.github.kotlinmania.flate2.zlib
 
@@ -7,6 +8,7 @@ import io.github.kotlinmania.flate2.Compress
 import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.Decompress
 import io.github.kotlinmania.flate2.readThroughCodec
+import kotlin.native.HiddenFromObjC
 
 /** Resets the internal compression state of [encoder]. */
 public fun <R : BufferedSource> resetEncoderData(encoder: ZlibEncoder<R>) {
@@ -26,6 +28,7 @@ public fun <R : BufferedSource> resetDecoderData(decoder: ZlibDecoder<R>) {
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class ZlibEncoder<R : BufferedSource>(
     private var obj: R,
     private val data: Compress,
@@ -79,6 +82,7 @@ public class ZlibEncoder<R : BufferedSource>(
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class ZlibDecoder<R : BufferedSource>(
     private var obj: R,
     private val data: Decompress,

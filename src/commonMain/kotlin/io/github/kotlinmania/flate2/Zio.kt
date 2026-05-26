@@ -1,5 +1,8 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zio.rs
 package io.github.kotlinmania.flate2
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * A generic writer that wraps a [Compress] or [Decompress] codec around an
@@ -17,6 +20,7 @@ package io.github.kotlinmania.flate2
  * @param W the output sink type
  * @param D the codec type ([Compress] or [Decompress])
  */
+@HiddenFromObjC
 public class Writer<W : OutputSink, D : CodecOps>(
     private var obj: W?,
     public var data: D,
@@ -153,6 +157,7 @@ public class Writer<W : OutputSink, D : CodecOps>(
  * [DecompressOps] so that [Writer] can operate generically over either
  * codec type.
  */
+@HiddenFromObjC
 public interface CodecOps {
     /** Total bytes input so far. */
     public fun totalIn(): ULong
@@ -182,6 +187,7 @@ public interface CodecOps {
  * This unifies [FlushCompress] and [FlushDecompress] into a single sealed
  * hierarchy that [CodecOps] can work with generically.
  */
+@HiddenFromObjC
 public sealed class FlushKind {
     /** No special flushing. */
     public object None : FlushKind()
@@ -199,6 +205,7 @@ public sealed class FlushKind {
  * `Result<Status, CompressError>` and `Decompress` returns
  * `Result<Status, DecompressError>`.
  */
+@HiddenFromObjC
 public sealed class CodecResult {
     /** Codec operation succeeded with the given [status]. */
     public data class Success(val status: Status) : CodecResult()
@@ -217,6 +224,7 @@ public sealed class CodecResult {
 }
 
 /** Convert a [FlushCompress] value to a [FlushKind]. */
+@HiddenFromObjC
 public fun FlushCompress.toFlushKind(): FlushKind = when (this) {
     FlushCompress.None -> FlushKind.None
     FlushCompress.Partial -> FlushKind.None
@@ -226,6 +234,7 @@ public fun FlushCompress.toFlushKind(): FlushKind = when (this) {
 }
 
 /** Convert a [FlushKind] value to a [FlushCompress]. */
+@HiddenFromObjC
 public fun FlushKind.toFlushCompress(): FlushCompress = when (this) {
     FlushKind.None -> FlushCompress.None
     FlushKind.Sync -> FlushCompress.Sync
@@ -233,6 +242,7 @@ public fun FlushKind.toFlushCompress(): FlushCompress = when (this) {
 }
 
 /** Convert a [FlushDecompress] value to a [FlushKind]. */
+@HiddenFromObjC
 public fun FlushDecompress.toFlushKind(): FlushKind = when (this) {
     FlushDecompress.None -> FlushKind.None
     FlushDecompress.Sync -> FlushKind.Sync
@@ -240,6 +250,7 @@ public fun FlushDecompress.toFlushKind(): FlushKind = when (this) {
 }
 
 /** Convert a [FlushKind] value to a [FlushDecompress]. */
+@HiddenFromObjC
 public fun FlushKind.toFlushDecompress(): FlushDecompress = when (this) {
     FlushKind.None -> FlushDecompress.None
     FlushKind.Sync -> FlushDecompress.Sync
@@ -247,12 +258,14 @@ public fun FlushKind.toFlushDecompress(): FlushDecompress = when (this) {
 }
 
 /** Convert a Kotlin [Result]<[Status]> to a [CodecResult]. */
+@HiddenFromObjC
 public fun Result<Status>.toCodecResult(): CodecResult = fold(
     { CodecResult.Success(it) },
     { CodecResult.Failure(it.message) },
 )
 
 /** [Compress] adapter implementing [CodecOps]. */
+@HiddenFromObjC
 public class CompressOps(internal val compress: Compress) : CodecOps {
     override fun totalIn(): ULong = compress.totalIn()
     override fun totalOut(): ULong = compress.totalOut()
@@ -268,6 +281,7 @@ public class CompressOps(internal val compress: Compress) : CodecOps {
 }
 
 /** [Decompress] adapter implementing [CodecOps]. */
+@HiddenFromObjC
 public class DecompressOps(internal val decompress: Decompress) : CodecOps {
     override fun totalIn(): ULong = decompress.totalIn()
     override fun totalOut(): ULong = decompress.totalOut()
@@ -300,6 +314,7 @@ public class DecompressOps(internal val decompress: Decompress) : CodecOps {
  * @return the number of bytes written to [dst]
  * @throws DeflateFormatException if the codec encounters corrupt input
  */
+@HiddenFromObjC
 public fun readThroughCodec(
     source: BufferedSource,
     codec: CodecOps,

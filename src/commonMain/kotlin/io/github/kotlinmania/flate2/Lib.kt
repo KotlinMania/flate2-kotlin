@@ -1,5 +1,8 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source lib.rs
 package io.github.kotlinmania.flate2
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * A DEFLATE-based stream compression/decompression library.
@@ -97,6 +100,7 @@ package io.github.kotlinmania.flate2
  * When compressing data, the compression level can be specified by a value in
  * this class.
  */
+@HiddenFromObjC
 public class Compression private constructor(private val level: UInt) {
 
     /** Returns an integer representing the compression level, typically on a

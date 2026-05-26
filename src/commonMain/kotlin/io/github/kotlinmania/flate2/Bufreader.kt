@@ -1,7 +1,9 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source bufreader.rs
 package io.github.kotlinmania.flate2
 
 import kotlin.math.min
+import kotlin.native.HiddenFromObjC
 
 /**
  * A buffered reader that wraps a readable source, reading ahead into an
@@ -11,6 +13,7 @@ import kotlin.math.min
  * implementor. The upstream uses its standard buffered reader; this port provides
  * the same buffering contract for [InputSource] types.
  */
+@HiddenFromObjC
 public class BufReader<R : InputSource> internal constructor(
     private var inner: R,
     private val buf: ByteArray,

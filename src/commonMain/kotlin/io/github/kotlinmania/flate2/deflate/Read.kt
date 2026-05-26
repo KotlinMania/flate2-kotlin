@@ -1,9 +1,11 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source deflate/read.rs
 package io.github.kotlinmania.flate2.deflate
 
 import io.github.kotlinmania.flate2.BufReader
 import io.github.kotlinmania.flate2.BufferedSource
 import io.github.kotlinmania.flate2.Compression
+import kotlin.native.HiddenFromObjC
 
 /**
  * A DEFLATE encoder, or compressor.
@@ -13,6 +15,7 @@ import io.github.kotlinmania.flate2.Compression
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class DeflateReadEncoder<R : BufferedSource>(
     private val inner: DeflateEncoder<BufReader<R>>,
 ) {
@@ -59,6 +62,7 @@ public class DeflateReadEncoder<R : BufferedSource>(
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class DeflateReadDecoder<R : BufferedSource>(
     private val inner: DeflateDecoder<BufReader<R>>,
 ) {

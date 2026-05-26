@@ -1,6 +1,9 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // Minimal blocking I/O interfaces for flate2-kotlin, mirroring the upstream
 // read, write, and buffered-read traits in a multiplatform-safe way.
 package io.github.kotlinmania.flate2
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * A readable source of bytes, mirroring the upstream `Read` trait.
@@ -9,6 +12,7 @@ package io.github.kotlinmania.flate2
  * [offset] and returns the number of bytes read, or -1 if the end of
  * the source has been reached.
  */
+@HiddenFromObjC
 public interface InputSource {
     public fun read(sink: ByteArray, offset: Int = 0, length: Int = sink.size - offset): Int
 }
@@ -19,6 +23,7 @@ public interface InputSource {
  * Writes bytes from [source] starting at [offset] for [length] bytes,
  * and returns the number of bytes written.
  */
+@HiddenFromObjC
 public interface OutputSink {
     public fun write(source: ByteArray, offset: Int = 0, length: Int = source.size - offset): Int
     public fun flush()
@@ -31,6 +36,7 @@ public interface OutputSink {
  * [fillBuffer] returns a copy of the currently buffered data.
  * [consume] advances the buffer position by [amount] bytes.
  */
+@HiddenFromObjC
 public interface BufferedSource : InputSource {
     public fun fillBuffer(): ByteArray
     public fun consume(amount: Int)

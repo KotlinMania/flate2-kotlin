@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source deflate/bufread.rs
 package io.github.kotlinmania.flate2.deflate
 
@@ -7,6 +8,7 @@ import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.Decompress
 import io.github.kotlinmania.flate2.InputSource
 import io.github.kotlinmania.flate2.readThroughCodec
+import kotlin.native.HiddenFromObjC
 
 /** Resets the internal compression state of [encoder]. */
 public fun <R : BufferedSource> resetEncoderData(encoder: DeflateEncoder<R>) {
@@ -26,6 +28,7 @@ public fun <R : BufferedSource> resetDecoderData(decoder: DeflateDecoder<R>) {
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class DeflateEncoder<R : BufferedSource>(
     private var obj: R,
     private val data: Compress,
@@ -97,6 +100,7 @@ public class DeflateEncoder<R : BufferedSource>(
  *
  * @param R the type of the underlying read source
  */
+@HiddenFromObjC
 public class DeflateDecoder<R : BufferedSource>(
     private var obj: R,
     private val data: Decompress,

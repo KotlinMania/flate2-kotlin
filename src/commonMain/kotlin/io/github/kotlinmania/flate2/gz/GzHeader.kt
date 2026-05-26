@@ -1,9 +1,11 @@
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/mod.rs
 package io.github.kotlinmania.flate2.gz
 
 import io.github.kotlinmania.flate2.BufferedSource
 import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.Crc
+import kotlin.native.HiddenFromObjC
 
 /** FHCRC flag: the header contains a CRC-16 of the header itself. */
 public const val FHCRC: Int = 1 shl 1
@@ -29,6 +31,7 @@ internal const val MAX_HEADER_BUF: Int = 65535
  * The header can contain metadata about the file that was compressed,
  * if present.
  */
+@HiddenFromObjC
 public data class GzHeader(
     internal val extra: ByteArray? = null,
     internal val filename: ByteArray? = null,
@@ -112,14 +115,17 @@ public data class GzHeader(
  * The parser reads bytes incrementally; each call to [parse] advances
  * the state as far as possible with the bytes available in the source.
  */
+@HiddenFromObjC
 public sealed class GzHeaderState {
     /** Initial state: accumulating the fixed 10-byte gzip header. */
+    @HiddenFromObjC
     public data class Start(
         val count: Int = 0,
         val buffer: ByteArray = ByteArray(10),
     ) : GzHeaderState()
 
     /** Reading the 2-byte XLEN field (only if FEXTRA is set). */
+    @HiddenFromObjC
     public data class Xlen(
         val crc: Crc? = null,
         val count: Int = 0,
@@ -127,22 +133,26 @@ public sealed class GzHeaderState {
     ) : GzHeaderState()
 
     /** Reading the extra field bytes. */
+    @HiddenFromObjC
     public data class Extra(
         val crc: Crc? = null,
         val count: Int = 0,
     ) : GzHeaderState()
 
     /** Reading the null-terminated filename. */
+    @HiddenFromObjC
     public data class Filename(
         val crc: Crc? = null,
     ) : GzHeaderState()
 
     /** Reading the null-terminated comment. */
+    @HiddenFromObjC
     public data class Comment(
         val crc: Crc? = null,
     ) : GzHeaderState()
 
     /** Reading the 2-byte header CRC (only if FHCRC is set). */
+    @HiddenFromObjC
     public data class Crc16(
         val crc: Crc? = null,
         val count: Int = 0,
@@ -150,6 +160,7 @@ public sealed class GzHeaderState {
     ) : GzHeaderState()
 
     /** Header fully parsed. */
+    @HiddenFromObjC
     public data object Complete : GzHeaderState()
 }
 
@@ -160,6 +171,7 @@ public sealed class GzHeaderState {
  * repeatedly with a [BufferedSource] until it returns without error.
  * After successful parsing, [header] returns the parsed [GzHeader].
  */
+@HiddenFromObjC
 public class GzHeaderParser private constructor(
     private var state: GzHeaderState,
     private var flags: Int,
@@ -333,6 +345,7 @@ public class GzHeaderParser private constructor(
  * header fields and call [write] to create a writer-side encoder or
  * [bufRead] to create a read-side encoder.
  */
+@HiddenFromObjC
 public data class GzBuilder(
     private val extra: ByteArray? = null,
     private val filename: ByteArray? = null,
