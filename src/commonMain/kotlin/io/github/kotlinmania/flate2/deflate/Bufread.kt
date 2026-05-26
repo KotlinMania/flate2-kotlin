@@ -5,6 +5,7 @@ import io.github.kotlinmania.flate2.BufferedSource
 import io.github.kotlinmania.flate2.Compress
 import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.Decompress
+import io.github.kotlinmania.flate2.InputSource
 import io.github.kotlinmania.flate2.readThroughCodec
 
 /** Resets the internal compression state of [encoder]. */
@@ -28,7 +29,8 @@ public fun <R : BufferedSource> resetDecoderData(decoder: DeflateDecoder<R>) {
 public class DeflateEncoder<R : BufferedSource>(
     private var obj: R,
     private val data: Compress,
-) {
+) : InputSource {
+
     public constructor(r: R, level: Compression) : this(r, Compress.new(level, zlibHeader = false))
 
     /** Resets the internal compression state, keeping the same source. */
@@ -60,10 +62,24 @@ public class DeflateEncoder<R : BufferedSource>(
     public fun totalOut(): ULong = data.totalOut()
 
     /**
-     * Reads compressed data into [dst], reading uncompressed data from the
+     * Reads compressed data into [sink], reading uncompressed data from the
      * underlying source as needed.
      *
-     * Returns the number of bytes written to [dst].
+     * Returns the number of bytes written to [sink].
+     */
+    override fun read(sink: ByteArray, offset: Int, length: Int): Int {
+        val buf = ByteArray(length)
+        val n = readThroughCodec(obj, io.github.kotlinmania.flate2.CompressOps(data), buf)
+        if (n > 0) {
+            buf.copyInto(sink, offset, 0, n)
+        }
+        return n
+    }
+
+    /**
+     * Reads compressed data into [dst].
+     *
+     * Returns the number of bytes written.
      */
     public fun read(dst: ByteArray): Int =
         readThroughCodec(obj, io.github.kotlinmania.flate2.CompressOps(data), dst)
@@ -84,7 +100,8 @@ public class DeflateEncoder<R : BufferedSource>(
 public class DeflateDecoder<R : BufferedSource>(
     private var obj: R,
     private val data: Decompress,
-) {
+) : InputSource {
+
     public constructor(r: R) : this(r, Decompress.new(zlibHeader = false))
 
     /** Resets the internal decompression state and replaces the underlying source. */
@@ -116,10 +133,24 @@ public class DeflateDecoder<R : BufferedSource>(
     public fun totalOut(): ULong = data.totalOut()
 
     /**
-     * Reads decompressed data into [dst], reading compressed data from the
+     * Reads decompressed data into [sink], reading compressed data from the
      * underlying source as needed.
      *
-     * Returns the number of bytes written to [dst].
+     * Returns the number of bytes written to [sink].
+     */
+    override fun read(sink: ByteArray, offset: Int, length: Int): Int {
+        val buf = ByteArray(length)
+        val n = readThroughCodec(obj, io.github.kotlinmania.flate2.DecompressOps(data), buf)
+        if (n > 0) {
+            buf.copyInto(sink, offset, 0, n)
+        }
+        return n
+    }
+
+    /**
+     * Reads decompressed data into [dst].
+     *
+     * Returns the number of bytes written.
      */
     public fun read(dst: ByteArray): Int =
         readThroughCodec(obj, io.github.kotlinmania.flate2.DecompressOps(data), dst)

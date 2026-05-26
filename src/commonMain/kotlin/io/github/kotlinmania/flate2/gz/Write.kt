@@ -283,30 +283,3 @@ public fun <W : OutputSink> gzWriteEncoder(header: ByteArray, w: W, lvl: Compres
 public fun <W : OutputSink> GzBuilder.write(w: W, lvl: Compression): GzWriteEncoder<W> =
     GzWriteEncoder.create(intoHeader(lvl), w, lvl)
 
-/**
- * A minimal [BufferedSource] backed by a byte array, used for feeding
- * header bytes to [GzHeaderParser].
- */
-internal class ByteArrayBufSource(private val data: ByteArray) : io.github.kotlinmania.flate2.BufferedSource {
-    private var pos: Int = 0
-
-    override fun fillBuffer(): ByteArray {
-        if (pos >= data.size) return ByteArray(0)
-        return data.copyOfRange(pos, data.size)
-    }
-
-    override fun consume(amount: Int) {
-        pos += amount
-    }
-
-    override fun read(sink: ByteArray, offset: Int, length: Int): Int {
-        val available = data.size - pos
-        if (available <= 0) return -1
-        val toRead = minOf(length, available)
-        data.copyInto(sink, destinationOffset = offset, startIndex = pos, endIndex = pos + toRead)
-        pos += toRead
-        return toRead
-    }
-
-    fun remaining(): Int = data.size - pos
-}
