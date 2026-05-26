@@ -349,7 +349,7 @@ public data class GzBuilder(
     /** Configure the mtime field in the gzip header. */
     public fun mtime(mtime: UInt): GzBuilder = copy(mtime = mtime)
 
-    /** Configure the operating_system field in the gzip header. */
+    /** Configure the [os] field in the gzip header. */
     public fun operatingSystem(os: UByte): GzBuilder = copy(operatingSystem = os)
 
     /** Configure the extra field in the gzip header. */
