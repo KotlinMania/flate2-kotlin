@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source mem.rs
+
 package io.github.kotlinmania.flate2
 
 import kotlin.native.HiddenFromObjC
@@ -99,11 +100,12 @@ public class Compress private constructor(
         }
 
         if (!finished && flush == FlushCompress.Finish) {
-            val compressed = try {
-                encodeDeflatePayload(pendingInput, format, level, dictionary)
-            } catch (error: Throwable) {
-                return compressFailed(error.message)
-            }
+            val compressed =
+                try {
+                    encodeDeflatePayload(pendingInput, format, level, dictionary)
+                } catch (error: Throwable) {
+                    return compressFailed(error.message)
+                }
             pendingOutput = pendingOutput + compressed
             pendingInput = ByteArray(0)
             finished = true
@@ -272,13 +274,14 @@ public class Decompress private constructor(
         }
 
         if (!finished && flush == FlushDecompress.Finish) {
-            val decompressed = try {
-                decodeDeflatePayload(pendingInput, format, dictionary)
-            } catch (error: NeedsDictionaryException) {
-                return decompressNeedDict(error.adler)
-            } catch (error: Throwable) {
-                return decompressFailed(error.message)
-            }
+            val decompressed =
+                try {
+                    decodeDeflatePayload(pendingInput, format, dictionary)
+                } catch (error: NeedsDictionaryException) {
+                    return decompressNeedDict(error.adler)
+                } catch (error: Throwable) {
+                    return decompressFailed(error.message)
+                }
             pendingOutput = pendingOutput + decompressed
             pendingInput = ByteArray(0)
             finished = true
@@ -479,8 +482,13 @@ public class CompressError internal constructor(
 }
 
 internal sealed class DecompressErrorInner {
-    data class General(val message: String?) : DecompressErrorInner()
-    data class NeedsDictionary(val adler: UInt) : DecompressErrorInner()
+    data class General(
+        val message: String?,
+    ) : DecompressErrorInner()
+
+    data class NeedsDictionary(
+        val adler: UInt,
+    ) : DecompressErrorInner()
 }
 
 internal fun <T> decompressFailed(message: String?): Result<T> =
@@ -507,33 +515,139 @@ private const val GZIP_FLAG_EXTRA = 0x04
 private const val GZIP_FLAG_NAME = 0x08
 private const val GZIP_FLAG_COMMENT = 0x10
 
-private val lengthBases = intArrayOf(
-    3, 4, 5, 6, 7, 8, 9, 10,
-    11, 13, 15, 17, 19, 23, 27, 31,
-    35, 43, 51, 59, 67, 83, 99, 115,
-    131, 163, 195, 227, 258,
-)
+private val lengthBases =
+    intArrayOf(
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13,
+        15,
+        17,
+        19,
+        23,
+        27,
+        31,
+        35,
+        43,
+        51,
+        59,
+        67,
+        83,
+        99,
+        115,
+        131,
+        163,
+        195,
+        227,
+        258,
+    )
 
-private val lengthExtraBits = intArrayOf(
-    0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 1, 2, 2, 2, 2,
-    3, 3, 3, 3, 4, 4, 4, 4,
-    5, 5, 5, 5, 0,
-)
+private val lengthExtraBits =
+    intArrayOf(
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        0,
+    )
 
-private val distanceBases = intArrayOf(
-    1, 2, 3, 4, 5, 7, 9, 13,
-    17, 25, 33, 49, 65, 97, 129, 193,
-    257, 385, 513, 769, 1025, 1537, 2049, 3073,
-    4097, 6145, 8193, 12289, 16385, 24577,
-)
+private val distanceBases =
+    intArrayOf(
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        9,
+        13,
+        17,
+        25,
+        33,
+        49,
+        65,
+        97,
+        129,
+        193,
+        257,
+        385,
+        513,
+        769,
+        1025,
+        1537,
+        2049,
+        3073,
+        4097,
+        6145,
+        8193,
+        12289,
+        16385,
+        24577,
+    )
 
-private val distanceExtraBits = intArrayOf(
-    0, 0, 0, 0, 1, 1, 2, 2,
-    3, 3, 4, 4, 5, 5, 6, 6,
-    7, 7, 8, 8, 9, 9, 10, 10,
-    11, 11, 12, 12, 13, 13,
-)
+private val distanceExtraBits =
+    intArrayOf(
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        7,
+        8,
+        8,
+        9,
+        9,
+        10,
+        10,
+        11,
+        11,
+        12,
+        12,
+        13,
+        13,
+    )
 
 private fun encodeDeflatePayload(
     input: ByteArray,
@@ -718,7 +832,9 @@ private fun fixedLiteralLengthTree(): HuffmanTree {
 private fun fixedDistanceTree(): HuffmanTree =
     HuffmanTree(IntArray(32) { 5 })
 
-private class HuffmanTree(lengths: IntArray) {
+private class HuffmanTree(
+    lengths: IntArray,
+) {
     private val table: Map<Int, Int>
     private val maxBits: Int
 
@@ -764,7 +880,9 @@ private class HuffmanTree(lengths: IntArray) {
     }
 }
 
-private class BitReader(private val input: ByteArray) {
+private class BitReader(
+    private val input: ByteArray,
+) {
     private var byteIndex: Int = 0
     private var bitBuffer: Int = 0
     private var bitCount: Int = 0
@@ -882,12 +1000,13 @@ private fun inflateGzip(input: ByteArray, dictionary: ByteArray?): ByteArray {
 
 private fun zlibHeader(level: Compression, dictionary: ByteArray?): ByteArray {
     val cmf = 0x78
-    val levelHint = when (level.level()) {
-        0u, 1u -> 0x00
-        2u, 3u, 4u, 5u -> 0x40
-        6u, 7u -> 0x80
-        else -> 0xc0
-    }
+    val levelHint =
+        when (level.level()) {
+            0u, 1u -> 0x00
+            2u, 3u, 4u, 5u -> 0x40
+            6u, 7u -> 0x80
+            else -> 0xc0
+        }
     var flg = levelHint or if (dictionary == null) 0 else 0x20
     while (((cmf shl 8) + flg) % 31 != 0) {
         flg += 1
@@ -956,18 +1075,22 @@ private fun littleEndianUInt(value: UInt): ByteArray =
 
 private fun readBigEndianUInt(input: ByteArray, offset: Int): UInt {
     ensureAvailable(input, offset, 4, "big-endian integer")
-    return ((input[offset].toUIntByte() shl 24) or
-        (input[offset + 1].toUIntByte() shl 16) or
-        (input[offset + 2].toUIntByte() shl 8) or
-        input[offset + 3].toUIntByte())
+    return (
+        (input[offset].toUIntByte() shl 24) or
+            (input[offset + 1].toUIntByte() shl 16) or
+            (input[offset + 2].toUIntByte() shl 8) or
+            input[offset + 3].toUIntByte()
+    )
 }
 
 private fun readLittleEndianUInt(input: ByteArray, offset: Int): UInt {
     ensureAvailable(input, offset, 4, "little-endian integer")
-    return (input[offset].toUIntByte() or
-        (input[offset + 1].toUIntByte() shl 8) or
-        (input[offset + 2].toUIntByte() shl 16) or
-        (input[offset + 3].toUIntByte() shl 24))
+    return (
+        input[offset].toUIntByte() or
+            (input[offset + 1].toUIntByte() shl 8) or
+            (input[offset + 2].toUIntByte() shl 16) or
+            (input[offset + 3].toUIntByte() shl 24)
+    )
 }
 
 private fun Byte.toUIntByte(): UInt =
@@ -999,6 +1122,10 @@ private fun decompressDisplayMessage(inner: DecompressErrorInner): String =
 private fun compressDisplayMessage(message: String?): String =
     message?.let { "deflate compression error: $it" } ?: "deflate compression error"
 
-internal class DeflateFormatException(message: String) : Exception(message)
+internal class DeflateFormatException(
+    message: String,
+) : Exception(message)
 
-internal class NeedsDictionaryException(val adler: UInt) : Exception("requires a dictionary")
+internal class NeedsDictionaryException(
+    val adler: UInt,
+) : Exception("requires a dictionary")

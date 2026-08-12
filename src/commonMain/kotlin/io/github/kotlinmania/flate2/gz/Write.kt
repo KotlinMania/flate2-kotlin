@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/write.rs
+
 package io.github.kotlinmania.flate2.gz
 
 import io.github.kotlinmania.flate2.Compress
@@ -13,8 +14,8 @@ import io.github.kotlinmania.flate2.DecompressOps
 import io.github.kotlinmania.flate2.OutputSink
 import io.github.kotlinmania.flate2.Status
 import io.github.kotlinmania.flate2.Writer
-import io.github.kotlinmania.flate2.gz.GzHeaderParser.Companion.new as newParser
 import kotlin.native.HiddenFromObjC
+import io.github.kotlinmania.flate2.gz.GzHeaderParser.Companion.new as newParser
 
 private const val CRC_BYTES_LEN: Int = 8
 
@@ -63,16 +64,17 @@ public class GzWriteEncoder<W : OutputSink> internal constructor(
         while (crcBytesWritten < CRC_BYTES_LEN) {
             val sum = crc.sum()
             val amt = crc.amount()
-            val buf = byteArrayOf(
-                (sum and 0xFFu).toByte(),
-                ((sum shr 8) and 0xFFu).toByte(),
-                ((sum shr 16) and 0xFFu).toByte(),
-                ((sum shr 24) and 0xFFu).toByte(),
-                (amt and 0xFFu).toByte(),
-                ((amt shr 8) and 0xFFu).toByte(),
-                ((amt shr 16) and 0xFFu).toByte(),
-                ((amt shr 24) and 0xFFu).toByte(),
-            )
+            val buf =
+                byteArrayOf(
+                    (sum and 0xFFu).toByte(),
+                    ((sum shr 8) and 0xFFu).toByte(),
+                    ((sum shr 16) and 0xFFu).toByte(),
+                    ((sum shr 24) and 0xFFu).toByte(),
+                    (amt and 0xFFu).toByte(),
+                    ((amt shr 8) and 0xFFu).toByte(),
+                    ((amt shr 16) and 0xFFu).toByte(),
+                    ((amt shr 24) and 0xFFu).toByte(),
+                )
             val n = inner.getMut().write(buf, crcBytesWritten, buf.size - crcBytesWritten)
             crcBytesWritten += n
         }
@@ -166,18 +168,36 @@ public class GzWriteDecoder<W : OutputSink> internal constructor(
         if (crcBytes.size != CRC_BYTES_LEN) {
             throw IllegalStateException("corrupt gzip stream does not have a matching checksum")
         }
-        val crc = ((crcBytes[0].toLong() and 0xFF) or
-            ((crcBytes[1].toLong() and 0xFF) shl 8) or
-            ((crcBytes[2].toLong() and 0xFF) shl 16) or
-            ((crcBytes[3].toLong() and 0xFF) shl 24)).toUInt()
-        val amt = ((crcBytes[4].toLong() and 0xFF) or
-            ((crcBytes[5].toLong() and 0xFF) shl 8) or
-            ((crcBytes[6].toLong() and 0xFF) shl 16) or
-            ((crcBytes[7].toLong() and 0xFF) shl 24)).toUInt()
-        if (crc != inner.getRef().inner.crc().sum()) {
+        val crc =
+            (
+                (crcBytes[0].toLong() and 0xFF) or
+                    ((crcBytes[1].toLong() and 0xFF) shl 8) or
+                    ((crcBytes[2].toLong() and 0xFF) shl 16) or
+                    ((crcBytes[3].toLong() and 0xFF) shl 24)
+            ).toUInt()
+        val amt =
+            (
+                (crcBytes[4].toLong() and 0xFF) or
+                    ((crcBytes[5].toLong() and 0xFF) shl 8) or
+                    ((crcBytes[6].toLong() and 0xFF) shl 16) or
+                    ((crcBytes[7].toLong() and 0xFF) shl 24)
+            ).toUInt()
+        if (crc !=
+            inner
+                .getRef()
+                .inner
+                .crc()
+                .sum()
+        ) {
             throw IllegalStateException("corrupt gzip stream does not have a matching checksum")
         }
-        if (amt != inner.getRef().inner.crc().amount()) {
+        if (amt !=
+            inner
+                .getRef()
+                .inner
+                .crc()
+                .amount()
+        ) {
             throw IllegalStateException("corrupt gzip stream does not have a matching checksum")
         }
     }
@@ -267,7 +287,11 @@ public class MultiGzWriteDecoder<W : OutputSink> internal constructor(
         val n = inner.write(data, offset, length)
         if (n == 0) {
             inner.tryFinish()
-            val w = inner.inner.takeInner().inner.intoInner()
+            val w =
+                inner.inner
+                    .takeInner()
+                    .inner
+                    .intoInner()
             inner = GzWriteDecoder.new(w)
             return inner.write(data, offset, length)
         }
@@ -287,4 +311,3 @@ public fun <W : OutputSink> gzWriteEncoder(header: ByteArray, w: W, lvl: Compres
 /** Allow [GzBuilder.write] to construct a [GzWriteEncoder]. */
 public fun <W : OutputSink> GzBuilder.write(w: W, lvl: Compression): GzWriteEncoder<W> =
     GzWriteEncoder.create(intoHeader(lvl), w, lvl)
-

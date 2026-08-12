@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source deflate/bufread.rs
+
 package io.github.kotlinmania.flate2.deflate
 
 import io.github.kotlinmania.flate2.BufferedSource
@@ -33,7 +34,6 @@ public class DeflateEncoder<R : BufferedSource>(
     private var obj: R,
     private val data: Compress,
 ) : InputSource {
-
     public constructor(r: R, level: Compression) : this(r, Compress.new(level, zlibHeader = false))
 
     /** Resets the internal compression state, keeping the same source. */
@@ -72,7 +72,13 @@ public class DeflateEncoder<R : BufferedSource>(
      */
     override fun read(sink: ByteArray, offset: Int, length: Int): Int {
         val buf = ByteArray(length)
-        val n = readThroughCodec(obj, io.github.kotlinmania.flate2.CompressOps(data), buf)
+        val n =
+            readThroughCodec(
+                obj,
+                io.github.kotlinmania.flate2
+                    .CompressOps(data),
+                buf,
+            )
         if (n > 0) {
             buf.copyInto(sink, offset, 0, n)
         }
@@ -85,7 +91,12 @@ public class DeflateEncoder<R : BufferedSource>(
      * Returns the number of bytes written.
      */
     public fun read(dst: ByteArray): Int =
-        readThroughCodec(obj, io.github.kotlinmania.flate2.CompressOps(data), dst)
+        readThroughCodec(
+            obj,
+            io.github.kotlinmania.flate2
+                .CompressOps(data),
+            dst,
+        )
 }
 
 /**
@@ -105,7 +116,6 @@ public class DeflateDecoder<R : BufferedSource>(
     private var obj: R,
     private val data: Decompress,
 ) : InputSource {
-
     public constructor(r: R) : this(r, Decompress.new(zlibHeader = false))
 
     /** Resets the internal decompression state and replaces the underlying source. */
@@ -144,7 +154,13 @@ public class DeflateDecoder<R : BufferedSource>(
      */
     override fun read(sink: ByteArray, offset: Int, length: Int): Int {
         val buf = ByteArray(length)
-        val n = readThroughCodec(obj, io.github.kotlinmania.flate2.DecompressOps(data), buf)
+        val n =
+            readThroughCodec(
+                obj,
+                io.github.kotlinmania.flate2
+                    .DecompressOps(data),
+                buf,
+            )
         if (n > 0) {
             buf.copyInto(sink, offset, 0, n)
         }
@@ -157,5 +173,10 @@ public class DeflateDecoder<R : BufferedSource>(
      * Returns the number of bytes written.
      */
     public fun read(dst: ByteArray): Int =
-        readThroughCodec(obj, io.github.kotlinmania.flate2.DecompressOps(data), dst)
+        readThroughCodec(
+            obj,
+            io.github.kotlinmania.flate2
+                .DecompressOps(data),
+            dst,
+        )
 }

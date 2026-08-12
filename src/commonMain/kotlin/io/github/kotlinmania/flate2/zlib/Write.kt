@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zlib/write.rs
+
 package io.github.kotlinmania.flate2.zlib
 
 import io.github.kotlinmania.flate2.Compress
@@ -27,7 +28,7 @@ public class ZlibWriteEncoder<W : OutputSink> private constructor(
     private val inner: Writer<W, CompressOps>,
 ) {
     public constructor(w: W, level: Compression) : this(
-        Writer(w, CompressOps(Compress.new(level, zlibHeader = true)))
+        Writer(w, CompressOps(Compress.new(level, zlibHeader = true))),
     )
 
     /** Acquires a reference to the underlying writer. */
@@ -110,7 +111,7 @@ public class ZlibWriteDecoder<W : OutputSink> private constructor(
     private val inner: Writer<W, DecompressOps>,
 ) {
     public constructor(w: W) : this(
-        Writer(w, DecompressOps(Decompress.new(zlibHeader = true)))
+        Writer(w, DecompressOps(Decompress.new(zlibHeader = true))),
     )
 
     /** Acquires a reference to the underlying writer. */

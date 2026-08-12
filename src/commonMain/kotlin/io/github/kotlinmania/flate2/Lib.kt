@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source lib.rs
+
 package io.github.kotlinmania.flate2
 
 import kotlin.native.HiddenFromObjC
@@ -101,8 +102,9 @@ import kotlin.native.HiddenFromObjC
  * this class.
  */
 @HiddenFromObjC
-public class Compression private constructor(private val level: UInt) {
-
+public class Compression private constructor(
+    private val level: UInt,
+) {
     /** Returns an integer representing the compression level, typically on a
      *  scale of 0-9. See [Companion.new] for details about compression levels. */
     public fun level(): UInt = level

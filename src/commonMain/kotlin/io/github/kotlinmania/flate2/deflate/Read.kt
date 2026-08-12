@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source deflate/read.rs
+
 package io.github.kotlinmania.flate2.deflate
 
 import io.github.kotlinmania.flate2.BufReader
@@ -20,7 +21,7 @@ public class DeflateReadEncoder<R : BufferedSource>(
     private val inner: DeflateEncoder<BufReader<R>>,
 ) {
     public constructor(r: R, level: Compression) : this(
-        DeflateEncoder(BufReader(r), level)
+        DeflateEncoder(BufReader(r), level),
     )
 
     /** Resets the state of this encoder entirely, swapping out the input stream. */
@@ -67,11 +68,11 @@ public class DeflateReadDecoder<R : BufferedSource>(
     private val inner: DeflateDecoder<BufReader<R>>,
 ) {
     public constructor(r: R) : this(
-        DeflateDecoder(BufReader(r))
+        DeflateDecoder(BufReader(r)),
     )
 
     public constructor(r: R, buffer: ByteArray) : this(
-        DeflateDecoder(BufReader(buffer, r))
+        DeflateDecoder(BufReader(buffer, r)),
     )
 
     /** Resets the state of this decoder entirely, swapping out the input stream. */

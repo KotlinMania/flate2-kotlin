@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source crc.rs
+
 package io.github.kotlinmania.flate2
 
 import kotlin.native.HiddenFromObjC
@@ -24,7 +25,6 @@ public class Crc private constructor(
     private var amt: UInt,
     private var hasher: Crc32Hasher,
 ) {
-
     /** Create a new CRC with initial state zero. */
     public constructor() : this(0u, Crc32Hasher())
 
@@ -76,7 +76,6 @@ public class CrcReader<R>(
     private val inner: R,
     private val crc: Crc = Crc(),
 ) : BufferedSource where R : BufferedSource {
-
     /** Get the [Crc] for this reader. */
     public fun crc(): Crc = crc
 
@@ -145,7 +144,6 @@ public class CrcWriter<W>(
     private val inner: W,
     private val crc: Crc = Crc(),
 ) {
-
     /** Get the [Crc] for this writer. */
     public fun crc(): Crc = crc
 
@@ -208,7 +206,6 @@ public class CrcWriter<W>(
 public class CrcWriterSink<W : OutputSink>(
     public val inner: CrcWriter<W>,
 ) : OutputSink {
-
     override fun write(source: ByteArray, offset: Int, length: Int): Int {
         val n = inner.getMut().write(source, offset, length)
         if (n > 0) {
@@ -268,13 +265,14 @@ internal class Crc32Hasher {
         private const val FINAL_XOR: UInt = 0xFFFFFFFFu
         private const val POLY: Int = -0x12477CE0
 
-        private val TABLE: IntArray = IntArray(256) { i ->
-            var crc = i
-            repeat(8) {
-                crc = if (crc and 1 != 0) (crc ushr 1) xor POLY else crc ushr 1
+        private val TABLE: IntArray =
+            IntArray(256) { i ->
+                var crc = i
+                repeat(8) {
+                    crc = if (crc and 1 != 0) (crc ushr 1) xor POLY else crc ushr 1
+                }
+                crc
             }
-            crc
-        }
 
         private fun gf2MatrixTimes(mat: Int, vec: Int): Int {
             var result = 0

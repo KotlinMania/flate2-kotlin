@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zio.rs
+
 package io.github.kotlinmania.flate2
 
 import kotlin.native.HiddenFromObjC
@@ -191,8 +192,10 @@ public interface CodecOps {
 public sealed class FlushKind {
     /** No special flushing. */
     public object None : FlushKind()
+
     /** Sync flush — produce output up to a byte boundary. */
     public object Sync : FlushKind()
+
     /** Finish the stream. */
     public object Finish : FlushKind()
 }
@@ -208,67 +211,81 @@ public sealed class FlushKind {
 @HiddenFromObjC
 public sealed class CodecResult {
     /** Codec operation succeeded with the given [status]. */
-    public data class Success(val status: Status) : CodecResult()
+    public data class Success(
+        val status: Status,
+    ) : CodecResult()
 
     /** Codec operation failed with an optional error [message]. */
-    public data class Failure(val message: String?) : CodecResult()
+    public data class Failure(
+        val message: String?,
+    ) : CodecResult()
 
     public val isSuccess: Boolean get() = this is Success
     public val isFailure: Boolean get() = this is Failure
     public val isStreamEnd: Boolean get() = this is Success && status == Status.StreamEnd
 
-    public fun getOrThrow(): Status = when (this) {
-        is Success -> status
-        is Failure -> throw DeflateFormatException(message ?: "deflate error")
-    }
+    public fun getOrThrow(): Status =
+        when (this) {
+            is Success -> status
+            is Failure -> throw DeflateFormatException(message ?: "deflate error")
+        }
 }
 
 /** Convert a [FlushCompress] value to a [FlushKind]. */
 @HiddenFromObjC
-public fun FlushCompress.toFlushKind(): FlushKind = when (this) {
-    FlushCompress.None -> FlushKind.None
-    FlushCompress.Partial -> FlushKind.None
-    FlushCompress.Sync -> FlushKind.Sync
-    FlushCompress.Full -> FlushKind.Sync
-    FlushCompress.Finish -> FlushKind.Finish
-}
+public fun FlushCompress.toFlushKind(): FlushKind =
+    when (this) {
+        FlushCompress.None -> FlushKind.None
+        FlushCompress.Partial -> FlushKind.None
+        FlushCompress.Sync -> FlushKind.Sync
+        FlushCompress.Full -> FlushKind.Sync
+        FlushCompress.Finish -> FlushKind.Finish
+    }
 
 /** Convert a [FlushKind] value to a [FlushCompress]. */
 @HiddenFromObjC
-public fun FlushKind.toFlushCompress(): FlushCompress = when (this) {
-    FlushKind.None -> FlushCompress.None
-    FlushKind.Sync -> FlushCompress.Sync
-    FlushKind.Finish -> FlushCompress.Finish
-}
+public fun FlushKind.toFlushCompress(): FlushCompress =
+    when (this) {
+        FlushKind.None -> FlushCompress.None
+        FlushKind.Sync -> FlushCompress.Sync
+        FlushKind.Finish -> FlushCompress.Finish
+    }
 
 /** Convert a [FlushDecompress] value to a [FlushKind]. */
 @HiddenFromObjC
-public fun FlushDecompress.toFlushKind(): FlushKind = when (this) {
-    FlushDecompress.None -> FlushKind.None
-    FlushDecompress.Sync -> FlushKind.Sync
-    FlushDecompress.Finish -> FlushKind.Finish
-}
+public fun FlushDecompress.toFlushKind(): FlushKind =
+    when (this) {
+        FlushDecompress.None -> FlushKind.None
+        FlushDecompress.Sync -> FlushKind.Sync
+        FlushDecompress.Finish -> FlushKind.Finish
+    }
 
 /** Convert a [FlushKind] value to a [FlushDecompress]. */
 @HiddenFromObjC
-public fun FlushKind.toFlushDecompress(): FlushDecompress = when (this) {
-    FlushKind.None -> FlushDecompress.None
-    FlushKind.Sync -> FlushDecompress.Sync
-    FlushKind.Finish -> FlushDecompress.Finish
-}
+public fun FlushKind.toFlushDecompress(): FlushDecompress =
+    when (this) {
+        FlushKind.None -> FlushDecompress.None
+        FlushKind.Sync -> FlushDecompress.Sync
+        FlushKind.Finish -> FlushDecompress.Finish
+    }
 
 /** Convert a Kotlin [Result]<[Status]> to a [CodecResult]. */
 @HiddenFromObjC
-public fun Result<Status>.toCodecResult(): CodecResult = fold(
-    { CodecResult.Success(it) },
-    { CodecResult.Failure(it.message) },
-)
+public fun Result<Status>.toCodecResult(): CodecResult =
+    fold(
+        { CodecResult.Success(it) },
+        { CodecResult.Failure(it.message) },
+    )
 
 /** [Compress] adapter implementing [CodecOps]. */
 @HiddenFromObjC
-public class CompressOps(internal val compress: Compress) : CodecOps {
+public class CompressOps(
+    internal val compress: Compress,
+) : CodecOps {
     override fun totalIn(): ULong = compress.totalIn()
+
     override fun totalOut(): ULong = compress.totalOut()
+
     override fun run(input: ByteArray, output: ByteArray, flush: FlushKind): CodecResult =
         compress.compress(input, output, flush.toFlushCompress()).toCodecResult()
 
@@ -276,15 +293,21 @@ public class CompressOps(internal val compress: Compress) : CodecOps {
         compress.compressVec(input, output, flush.toFlushCompress()).toCodecResult()
 
     override fun flushNone(): FlushKind = FlushKind.None
+
     override fun flushSync(): FlushKind = FlushKind.Sync
+
     override fun flushFinish(): FlushKind = FlushKind.Finish
 }
 
 /** [Decompress] adapter implementing [CodecOps]. */
 @HiddenFromObjC
-public class DecompressOps(internal val decompress: Decompress) : CodecOps {
+public class DecompressOps(
+    internal val decompress: Decompress,
+) : CodecOps {
     override fun totalIn(): ULong = decompress.totalIn()
+
     override fun totalOut(): ULong = decompress.totalOut()
+
     override fun run(input: ByteArray, output: ByteArray, flush: FlushKind): CodecResult =
         decompress.decompress(input, output, flush.toFlushDecompress()).toCodecResult()
 
@@ -292,7 +315,9 @@ public class DecompressOps(internal val decompress: Decompress) : CodecOps {
         decompress.decompressVec(input, output, flush.toFlushDecompress()).toCodecResult()
 
     override fun flushNone(): FlushKind = FlushKind.None
+
     override fun flushSync(): FlushKind = FlushKind.Sync
+
     override fun flushFinish(): FlushKind = FlushKind.Finish
 }
 
@@ -334,7 +359,9 @@ public fun readThroughCodec(
         when (ret) {
             is CodecResult.Success -> {
                 if ((ret.status == Status.Ok || ret.status == Status.BufError) &&
-                    read == 0 && !eof && dst.isNotEmpty()
+                    read == 0 &&
+                    !eof &&
+                    dst.isNotEmpty()
                 ) {
                     continue
                 }

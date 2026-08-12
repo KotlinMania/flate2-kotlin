@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zlib/read.rs
+
 package io.github.kotlinmania.flate2.zlib
 
 import io.github.kotlinmania.flate2.BufReader
@@ -20,7 +21,7 @@ public class ZlibReadEncoder<R : BufferedSource>(
     private val inner: ZlibEncoder<BufReader<R>>,
 ) {
     public constructor(r: R, level: Compression) : this(
-        ZlibEncoder(BufReader(r), level)
+        ZlibEncoder(BufReader(r), level),
     )
 
     /** Resets the state of this encoder entirely, swapping out the input stream. */

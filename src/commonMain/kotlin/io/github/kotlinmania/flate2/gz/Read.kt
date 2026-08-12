@@ -1,10 +1,9 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/read.rs
+
 package io.github.kotlinmania.flate2.gz
 
 import io.github.kotlinmania.flate2.BufReader
-import io.github.kotlinmania.flate2.BufferedSource
-import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.InputSource
 import kotlin.native.HiddenFromObjC
 

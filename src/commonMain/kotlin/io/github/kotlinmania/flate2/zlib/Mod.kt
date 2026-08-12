@@ -5,3 +5,5 @@
 // this file tracks the provenance only.
 
 package io.github.kotlinmania.flate2.zlib
+
+internal object ZlibMod
