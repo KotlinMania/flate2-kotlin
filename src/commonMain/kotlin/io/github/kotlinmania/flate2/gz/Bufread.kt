@@ -1,21 +1,16 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/bufread.rs
+
 package io.github.kotlinmania.flate2.gz
 
 import io.github.kotlinmania.flate2.BufReader
 import io.github.kotlinmania.flate2.BufferedSource
-import io.github.kotlinmania.flate2.Compress
-import io.github.kotlinmania.flate2.CompressOps
 import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.CrcReader
-import io.github.kotlinmania.flate2.Decompress
-import io.github.kotlinmania.flate2.DecompressOps
-import io.github.kotlinmania.flate2.InputSource
 import io.github.kotlinmania.flate2.deflate.DeflateDecoder
 import io.github.kotlinmania.flate2.deflate.DeflateEncoder
-import io.github.kotlinmania.flate2.gz.GzHeaderParser.Companion.new as newParser
-import io.github.kotlinmania.flate2.readThroughCodec
 import kotlin.native.HiddenFromObjC
+import io.github.kotlinmania.flate2.gz.GzHeaderParser.Companion.new as newParser
 
 private const val CRC_BYTES_LEN: Int = 8
 
@@ -27,23 +22,45 @@ private fun copy(into: ByteArray, from: ByteArray, pos: IntArray): Int {
 }
 
 private fun finish(buf: ByteArray): Pair<UInt, UInt> {
-    val crc = (buf[0].toLong() and 0xFF or
-        ((buf[1].toLong() and 0xFF) shl 8) or
-        ((buf[2].toLong() and 0xFF) shl 16) or
-        ((buf[3].toLong() and 0xFF) shl 24)).toUInt()
-    val amt = (buf[4].toLong() and 0xFF or
-        ((buf[5].toLong() and 0xFF) shl 8) or
-        ((buf[6].toLong() and 0xFF) shl 16) or
-        ((buf[7].toLong() and 0xFF) shl 24)).toUInt()
+    val crc =
+        (
+            buf[0].toLong() and 0xFF or
+                ((buf[1].toLong() and 0xFF) shl 8) or
+                ((buf[2].toLong() and 0xFF) shl 16) or
+                ((buf[3].toLong() and 0xFF) shl 24)
+        ).toUInt()
+    val amt =
+        (
+            buf[4].toLong() and 0xFF or
+                ((buf[5].toLong() and 0xFF) shl 8) or
+                ((buf[6].toLong() and 0xFF) shl 16) or
+                ((buf[7].toLong() and 0xFF) shl 24)
+        ).toUInt()
     return Pair(crc, amt)
 }
 
 internal sealed class GzState {
-    data class Header(val parser: GzHeaderParser) : GzState()
-    data class Body(val header: GzHeader) : GzState()
-    class Finished(val header: GzHeader, var pos: Int, val buf: ByteArray) : GzState()
-    class Err(val error: Throwable) : GzState()
-    data class End(val header: GzHeader?) : GzState()
+    data class Header(
+        val parser: GzHeaderParser,
+    ) : GzState()
+
+    data class Body(
+        val header: GzHeader,
+    ) : GzState()
+
+    class Finished(
+        val header: GzHeader,
+        var pos: Int,
+        val buf: ByteArray,
+    ) : GzState()
+
+    class Err(
+        val error: Throwable,
+    ) : GzState()
+
+    data class End(
+        val header: GzHeader?,
+    ) : GzState()
 }
 
 /**
@@ -116,16 +133,17 @@ public class GzEncoder<R : BufferedSource> internal constructor(
         val crc = inner.getRef().crc()
         val sum = crc.sum()
         val amount = crc.amount()
-        val arr = byteArrayOf(
-            (sum and 0xFFu).toByte(),
-            ((sum shr 8) and 0xFFu).toByte(),
-            ((sum shr 16) and 0xFFu).toByte(),
-            ((sum shr 24) and 0xFFu).toByte(),
-            (amount and 0xFFu).toByte(),
-            ((amount shr 8) and 0xFFu).toByte(),
-            ((amount shr 16) and 0xFFu).toByte(),
-            ((amount shr 24) and 0xFFu).toByte(),
-        )
+        val arr =
+            byteArrayOf(
+                (sum and 0xFFu).toByte(),
+                ((sum shr 8) and 0xFFu).toByte(),
+                ((sum shr 16) and 0xFFu).toByte(),
+                ((sum shr 24) and 0xFFu).toByte(),
+                (amount and 0xFFu).toByte(),
+                ((amount shr 8) and 0xFFu).toByte(),
+                ((amount shr 16) and 0xFFu).toByte(),
+                ((amount shr 24) and 0xFFu).toByte(),
+            )
         val posArr = intArrayOf(headerPos)
         val result = copy(into, arr, posArr)
         headerPos = posArr[0]
@@ -150,22 +168,23 @@ public class GzDecoder<R : BufferedSource> internal constructor(
         /** Creates a new [GzDecoder] from a buffered source. */
         public fun <R : BufferedSource> new(r: R): GzDecoder<R> {
             val headerParser = newParser()
-            val state = try {
-                val bufData = r.fillBuffer()
-                if (bufData.isNotEmpty()) {
-                    val src = ByteArrayBufSource(bufData)
-                    headerParser.parse(src)
-                    val consumed = bufData.size - src.remaining()
-                    r.consume(consumed)
-                }
-                if (headerParser.header() != null) {
-                    GzState.Body(headerParser.header()!!)
-                } else {
+            val state =
+                try {
+                    val bufData = r.fillBuffer()
+                    if (bufData.isNotEmpty()) {
+                        val src = ByteArrayBufSource(bufData)
+                        headerParser.parse(src)
+                        val consumed = bufData.size - src.remaining()
+                        r.consume(consumed)
+                    }
+                    if (headerParser.header() != null) {
+                        GzState.Body(headerParser.header()!!)
+                    } else {
+                        GzState.Header(headerParser)
+                    }
+                } catch (_: Exception) {
                     GzState.Header(headerParser)
                 }
-            } catch (_: Exception) {
-                GzState.Header(headerParser)
-            }
             val decoder = DeflateDecoder<R>(r)
             val bufDecoder: BufReader<DeflateDecoder<R>> = BufReader.new(decoder)
             val crcReader = CrcReader.new(bufDecoder)
@@ -174,12 +193,13 @@ public class GzDecoder<R : BufferedSource> internal constructor(
     }
 
     /** Returns the header associated with this stream, if it was valid. */
-    public fun header(): GzHeader? = when (state) {
-        is GzState.Body -> (state as GzState.Body).header
-        is GzState.Finished -> (state as GzState.Finished).header
-        is GzState.End -> (state as GzState.End).header
-        else -> null
-    }
+    public fun header(): GzHeader? =
+        when (state) {
+            is GzState.Body -> (state as GzState.Body).header
+            is GzState.Finished -> (state as GzState.Finished).header
+            is GzState.End -> (state as GzState.End).header
+            else -> null
+        }
 
     /** Acquires a reference to the underlying reader. */
     public fun getRef(): R = reader.getRef().getRef().getRef()
@@ -264,7 +284,9 @@ public class GzDecoder<R : BufferedSource> internal constructor(
  * A gzip streaming decoder that decodes a gzip file that may have multiple members.
  */
 @HiddenFromObjC
-public class MultiGzDecoder<R : BufferedSource>(internal val inner: GzDecoder<R>) {
+public class MultiGzDecoder<R : BufferedSource>(
+    internal val inner: GzDecoder<R>,
+) {
     public companion object {
         /** Creates a new [MultiGzDecoder] from a buffered source. */
         public fun <R : BufferedSource> new(r: R): MultiGzDecoder<R> {
@@ -310,7 +332,9 @@ public fun <R : BufferedSource> GzBuilder.bufRead(r: R, lvl: Compression): GzEnc
  * A minimal [BufferedSource] backed by a byte array, used for feeding
  * header bytes to [GzHeaderParser].
  */
-internal class ByteArrayBufSource(private val data: ByteArray) : BufferedSource {
+internal class ByteArrayBufSource(
+    private val data: ByteArray,
+) : BufferedSource {
     private var pos: Int = 0
 
     override fun fillBuffer(): ByteArray {

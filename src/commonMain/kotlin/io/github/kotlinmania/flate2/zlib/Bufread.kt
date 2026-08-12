@@ -1,9 +1,9 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source zlib/bufread.rs
+
 package io.github.kotlinmania.flate2.zlib
 
 import io.github.kotlinmania.flate2.BufferedSource
-import io.github.kotlinmania.flate2.BufReader
 import io.github.kotlinmania.flate2.Compress
 import io.github.kotlinmania.flate2.Compression
 import io.github.kotlinmania.flate2.Decompress
@@ -68,7 +68,12 @@ public class ZlibEncoder<R : BufferedSource>(
      * underlying source as needed.
      */
     public fun read(dst: ByteArray): Int =
-        readThroughCodec(obj, io.github.kotlinmania.flate2.CompressOps(data), dst)
+        readThroughCodec(
+            obj,
+            io.github.kotlinmania.flate2
+                .CompressOps(data),
+            dst,
+        )
 }
 
 /**
@@ -122,5 +127,10 @@ public class ZlibDecoder<R : BufferedSource>(
      * underlying source as needed.
      */
     public fun read(dst: ByteArray): Int =
-        readThroughCodec(obj, io.github.kotlinmania.flate2.DecompressOps(data), dst)
+        readThroughCodec(
+            obj,
+            io.github.kotlinmania.flate2
+                .DecompressOps(data),
+            dst,
+        )
 }

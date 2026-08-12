@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source gz/mod.rs
+
 package io.github.kotlinmania.flate2.gz
 
 import io.github.kotlinmania.flate2.BufferedSource
@@ -39,7 +40,6 @@ public data class GzHeader(
     internal val operatingSystem: UByte = 255u,
     internal val mtime: UInt = 0u,
 ) {
-
     /** Returns the filename field of this gzip stream's header, if present. */
     public fun filename(): ByteArray? = filename?.copyOf()
 
@@ -73,15 +73,21 @@ public data class GzHeader(
         if (extra != null) {
             if (other.extra == null) return false
             if (!extra.contentEquals(other.extra)) return false
-        } else if (other.extra != null) return false
+        } else if (other.extra != null) {
+            return false
+        }
         if (filename != null) {
             if (other.filename == null) return false
             if (!filename.contentEquals(other.filename)) return false
-        } else if (other.filename != null) return false
+        } else if (other.filename != null) {
+            return false
+        }
         if (comment != null) {
             if (other.comment == null) return false
             if (!comment.contentEquals(other.comment)) return false
-        } else if (other.comment != null) return false
+        } else if (other.comment != null) {
+            return false
+        }
         return true
     }
 
@@ -94,19 +100,20 @@ public data class GzHeader(
         return result
     }
 
-    override fun toString(): String = buildString {
-        append("GzHeader(mtime=")
-        append(mtime)
-        append(", operatingSystem=")
-        append(operatingSystem)
-        append(", filename=")
-        append(filename?.decodeToString() ?: "null")
-        append(", comment=")
-        append(comment?.decodeToString() ?: "null")
-        append(", extra=")
-        append(if (extra != null) extra.size.toString() + " bytes" else "null")
-        append(")")
-    }
+    override fun toString(): String =
+        buildString {
+            append("GzHeader(mtime=")
+            append(mtime)
+            append(", operatingSystem=")
+            append(operatingSystem)
+            append(", filename=")
+            append(filename?.decodeToString() ?: "null")
+            append(", comment=")
+            append(comment?.decodeToString() ?: "null")
+            append(", extra=")
+            append(if (extra != null) extra.size.toString() + " bytes" else "null")
+            append(")")
+        }
 }
 
 /**
@@ -177,14 +184,14 @@ public class GzHeaderParser private constructor(
     private var flags: Int,
     private var header: GzHeader,
 ) {
-
     public companion object {
         /** Create a new header parser in its initial state. */
-        public fun new(): GzHeaderParser = GzHeaderParser(
-            state = GzHeaderState.Start(),
-            flags = 0,
-            header = GzHeader(),
-        )
+        public fun new(): GzHeaderParser =
+            GzHeaderParser(
+                state = GzHeaderState.Start(),
+                flags = 0,
+                header = GzHeader(),
+            )
     }
 
     /**
@@ -213,21 +220,26 @@ public class GzHeaderParser private constructor(
                     check(buf[2].toInt() == 8) { "invalid gzip header" }
                     flags = buf[3].toInt() and 0xFF
                     check(flags and FRESERVED == 0) { "invalid gzip header" }
-                    val mtimeVal = ((buf[4].toLong() and 0xFF)) or
-                        ((buf[5].toLong() and 0xFF) shl 8) or
-                        ((buf[6].toLong() and 0xFF) shl 16) or
-                        ((buf[7].toLong() and 0xFF) shl 24)
+                    val mtimeVal =
+                        ((buf[4].toLong() and 0xFF)) or
+                            ((buf[5].toLong() and 0xFF) shl 8) or
+                            ((buf[6].toLong() and 0xFF) shl 16) or
+                            ((buf[7].toLong() and 0xFF) shl 24)
                     val os = buf[9].toUByte()
-                    val crc = if (flags and FHCRC != 0) {
-                        Crc.new().also { it.update(buf) }
-                    } else null
-                    header = GzHeader(
-                        extra = header.extra,
-                        filename = header.filename,
-                        comment = header.comment,
-                        operatingSystem = os,
-                        mtime = mtimeVal.toUInt(),
-                    )
+                    val crc =
+                        if (flags and FHCRC != 0) {
+                            Crc.new().also { it.update(buf) }
+                        } else {
+                            null
+                        }
+                    header =
+                        GzHeader(
+                            extra = header.extra,
+                            filename = header.filename,
+                            comment = header.comment,
+                            operatingSystem = os,
+                            mtime = mtimeVal.toUInt(),
+                        )
                     currentState = GzHeaderState.Xlen(crc = crc)
                 }
                 is GzHeaderState.Xlen -> {
@@ -245,13 +257,14 @@ public class GzHeaderParser private constructor(
                         }
                         s.crc?.update(buf)
                         val xlen = parseLeU16(buf).toInt()
-                        header = GzHeader(
-                            extra = ByteArray(xlen),
-                            filename = header.filename,
-                            comment = header.comment,
-                            operatingSystem = header.operatingSystem,
-                            mtime = header.mtime,
-                        )
+                        header =
+                            GzHeader(
+                                extra = ByteArray(xlen),
+                                filename = header.filename,
+                                comment = header.comment,
+                                operatingSystem = header.operatingSystem,
+                                mtime = header.mtime,
+                            )
                         currentState = GzHeaderState.Extra(crc = s.crc, count = 0)
                     } else {
                         currentState = GzHeaderState.Filename(crc = s.crc)
@@ -276,13 +289,14 @@ public class GzHeaderParser private constructor(
                     if (flags and FNAME != 0) {
                         val filenameBuf = mutableListOf<Byte>()
                         readToNul(source, filenameBuf)
-                        header = GzHeader(
-                            extra = header.extra,
-                            filename = filenameBuf.toByteArray(),
-                            comment = header.comment,
-                            operatingSystem = header.operatingSystem,
-                            mtime = header.mtime,
-                        )
+                        header =
+                            GzHeader(
+                                extra = header.extra,
+                                filename = filenameBuf.toByteArray(),
+                                comment = header.comment,
+                                operatingSystem = header.operatingSystem,
+                                mtime = header.mtime,
+                            )
                         s.crc?.update(header.filename!!)
                         s.crc?.update(byteArrayOf(0))
                     }
@@ -292,13 +306,14 @@ public class GzHeaderParser private constructor(
                     if (flags and FCOMMENT != 0) {
                         val commentBuf = mutableListOf<Byte>()
                         readToNul(source, commentBuf)
-                        header = GzHeader(
-                            extra = header.extra,
-                            filename = header.filename,
-                            comment = commentBuf.toByteArray(),
-                            operatingSystem = header.operatingSystem,
-                            mtime = header.mtime,
-                        )
+                        header =
+                            GzHeader(
+                                extra = header.extra,
+                                filename = header.filename,
+                                comment = commentBuf.toByteArray(),
+                                operatingSystem = header.operatingSystem,
+                                mtime = header.mtime,
+                            )
                         s.crc?.update(header.comment!!)
                         s.crc?.update(byteArrayOf(0))
                     }
@@ -332,10 +347,11 @@ public class GzHeaderParser private constructor(
     }
 
     /** Returns the parsed header, or null if parsing is not yet complete. */
-    public fun header(): GzHeader? = when (state) {
-        is GzHeaderState.Complete -> header
-        else -> null
-    }
+    public fun header(): GzHeader? =
+        when (state) {
+            is GzHeaderState.Complete -> header
+            else -> null
+        }
 }
 
 /**
@@ -353,7 +369,6 @@ public data class GzBuilder(
     private val operatingSystem: UByte? = null,
     private val mtime: UInt = 0u,
 ) {
-
     public companion object {
         /** Create a new blank builder with no header by default. */
         public fun new(): GzBuilder = GzBuilder()
@@ -411,13 +426,14 @@ public data class GzBuilder(
         header[5] = ((mtime shr 8) and 0xFFu).toByte()
         header[6] = ((mtime shr 16) and 0xFFu).toByte()
         header[7] = ((mtime shr 24) and 0xFFu).toByte()
-        header[8] = if (level.level() >= Compression.best().level()) {
-            2.toByte()
-        } else if (level.level() <= Compression.fast().level()) {
-            4.toByte()
-        } else {
-            0.toByte()
-        }
+        header[8] =
+            if (level.level() >= Compression.best().level()) {
+                2.toByte()
+            } else if (level.level() <= Compression.fast().level()) {
+                4.toByte()
+            } else {
+                0.toByte()
+            }
         header[9] = (operatingSystem ?: 255u).toByte()
         return header.toByteArray()
     }
@@ -460,6 +476,4 @@ internal fun readToNul(source: BufferedSource, buffer: MutableList<Byte>) {
 }
 
 /** Parse a little-endian unsigned 16-bit integer from two bytes. */
-internal fun parseLeU16(buf: ByteArray): UShort {
-    return ((buf[0].toLong() and 0xFF) or ((buf[1].toLong() and 0xFF) shl 8)).toUShort()
-}
+internal fun parseLeU16(buf: ByteArray): UShort = ((buf[0].toLong() and 0xFF) or ((buf[1].toLong() and 0xFF) shl 8)).toUShort()

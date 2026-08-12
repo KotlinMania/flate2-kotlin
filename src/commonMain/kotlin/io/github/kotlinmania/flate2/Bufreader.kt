@@ -1,5 +1,6 @@
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 // port-lint: source bufreader.rs
+
 package io.github.kotlinmania.flate2
 
 import kotlin.math.min
@@ -20,7 +21,6 @@ public class BufReader<R : InputSource> internal constructor(
     private var pos: Int = 0,
     private var cap: Int = 0,
 ) : BufferedSource {
-
     public constructor(inner: R) : this(inner, ByteArray(DEFAULT_BUF_SIZE))
 
     public constructor(buffer: ByteArray, inner: R) : this(inner, buffer.copyOf())
