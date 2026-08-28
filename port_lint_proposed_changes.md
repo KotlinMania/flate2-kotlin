@@ -1,6 +1,6 @@
 # port-lint Proposed Changes
 
-**Generated:** 2026-05-25
+**Generated:** 2026-08-28
 **Source:** tmp/flate2/src
 **Target:** src/commonMain/kotlin/io/github/kotlinmania/flate2
 
