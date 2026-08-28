@@ -5,10 +5,10 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 18/21 (85.7%)
-- **Function parity:** 141/325 matched (target 348) — 43.4%
-- **Class/type parity:** 22/62 matched (target 75) — 35.5%
-- **Combined symbol parity:** 163/387 matched (target 423) — 42.1%
-- **Average inline-code cosine:** 0.51 (function body across 14 matched files)
+- **Function parity:** 144/325 matched (target 357) — 44.3%
+- **Class/type parity:** 22/62 matched (target 78) — 35.5%
+- **Combined symbol parity:** 166/387 matched (target 435) — 42.9%
+- **Average inline-code cosine:** 0.53 (function body across 14 matched files)
 - **Average documentation cosine:** 0.55 (doc text across 14 matched files)
 - **Cheat-zeroed Files:** 4
 - **Critical Issues:** 15 files with <0.60 function similarity
@@ -55,10 +55,10 @@ Every matched file is listed below with function and type symbol parity.
 - **Target:** `gz.Write`
 - **Similarity:** 0.54
 - **Dependents:** 4
-- **Priority Score:** 4132404.5
-- **Functions:** 11/21 matched (target 32)
-- **Missing functions:** `gz_encoder`, `drop`, `decode_writer_one_chunk`, `decode_writer_partial_header`, `decode_writer_partial_header_filename`, `decode_writer_partial_header_comment`, `decode_writer_exact_header`, `decode_writer_partial_crc`, `decode_multi_writer`, `decode_extra_data`
-- **Types:** 0/3 matched (target 4)
+- **Priority Score:** 4142404.8
+- **Functions:** 10/21 matched (target 28)
+- **Missing functions:** `gz_encoder`, `read`, `drop`, `decode_writer_one_chunk`, `decode_writer_partial_header`, `decode_writer_partial_header_filename`, `decode_writer_partial_header_comment`, `decode_writer_exact_header`, `decode_writer_partial_crc`, `decode_multi_writer`, `decode_extra_data`
+- **Types:** 0/3 matched
 - **Missing types:** `GzEncoder`, `GzDecoder`, `MultiGzDecoder`
 - **Tests:** 0/8 matched
 
@@ -76,15 +76,14 @@ Every matched file is listed below with function and type symbol parity.
 ### 5. gz.bufread
 
 - **Target:** `gz.Bufread`
-- **Similarity:** 0.22
+- **Similarity:** 0.52
 - **Dependents:** 3
-- **Priority Score:** 3091807.8
-- **Functions:** 5/14 matched (target 15)
-- **Missing functions:** `copy`, `new`, `read_footer`, `finish`, `read`, `write`, `flush`, `multi`, `decode_extra_data`
-- **Types:** 4/4 matched (target 9)
+- **Priority Score:** 3041804.8
+- **Functions:** 10/14 matched (target 28)
+- **Missing functions:** `write`, `flush`, `multi`, `decode_extra_data`
+- **Types:** 4/4 matched (target 10)
 - **Missing types:** _none_
 - **Tests:** 0/1 matched
-- **Lint issues:** 5
 
 ### 6. gz.mod
 
@@ -94,7 +93,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Priority Score:** 363610.0
 - **Functions:** 0/31 matched (target 0)
 - **Missing functions:** `filename`, `extra`, `comment`, `operating_system`, `mtime`, `mtime_as_datetime`, `new`, `parse`, `header`, `from`, `read_into`, `read_to_nul`, `parse_le_u16`, `bad_header`, `corrupt`, `write`, `read`, `buf_read`, `into_header`, `roundtrip`, `roundtrip_zero`, `roundtrip_big`, `roundtrip_big2`, `update_crc`, `crc`, `roundtrip_header`, `fields`, `keep_reading_after_end`, `qc_reader`, `test`, `flush_after_write`
-- **Types:** 0/5 matched (target 0)
+- **Types:** 0/5 matched (target 1)
 - **Missing types:** `GzHeader`, `GzHeaderState`, `GzHeaderParser`, `GzBuilder`, `Rfc1952Crc`
 - **Tests:** 0/12 matched
 
@@ -106,18 +105,18 @@ Every matched file is listed below with function and type symbol parity.
 - **Priority Score:** 121210.0
 - **Functions:** 0/12 matched (target 0)
 - **Missing functions:** `roundtrip`, `drop_writes`, `total_in`, `roundtrip2`, `roundtrip3`, `reset_writer`, `reset_reader`, `reset_decoder`, `zero_length_read_with_data`, `qc_reader`, `test`, `qc_writer`
-- **Types:** 0/0 matched
+- **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 - **Tests:** 0/12 matched
 
 ### 8. gz.read
 
 - **Target:** `gz.Read`
-- **Similarity:** 0.26
+- **Similarity:** 0.23
 - **Dependents:** 0
-- **Priority Score:** 101507.4
-- **Functions:** 5/11 matched (target 9)
-- **Missing functions:** `new`, `read`, `write`, `flush`, `set_position`, `blocked_partial_header_read`
+- **Priority Score:** 111507.7
+- **Functions:** 4/11 matched (target 9)
+- **Missing functions:** `gz_encoder`, `new`, `read`, `write`, `flush`, `set_position`, `blocked_partial_header_read`
 - **Types:** 0/4 matched (target 3)
 - **Missing types:** `GzEncoder`, `GzDecoder`, `MultiGzDecoder`, `BlockingCursor`
 - **Tests:** 0/2 matched
@@ -130,7 +129,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Priority Score:** 101010.0
 - **Functions:** 0/10 matched (target 0)
 - **Missing functions:** `roundtrip`, `drop_writes`, `total_in`, `roundtrip2`, `roundtrip3`, `reset_decoder`, `bad_input`, `qc_reader`, `test`, `qc_writer`
-- **Types:** 0/0 matched
+- **Types:** 0/0 matched (target 1)
 - **Missing types:** _none_
 - **Tests:** 0/10 matched
 
@@ -209,10 +208,10 @@ Every matched file is listed below with function and type symbol parity.
 ### 16. deflate.bufread
 
 - **Target:** `deflate.Bufread`
-- **Similarity:** 0.51
+- **Similarity:** 0.52
 - **Dependents:** 0
-- **Priority Score:** 41604.9
-- **Functions:** 10/14 matched (target 18)
+- **Priority Score:** 41604.8
+- **Functions:** 10/14 matched (target 20)
 - **Missing functions:** `new`, `write`, `flush`, `decode_extra_data`
 - **Types:** 2/2 matched
 - **Missing types:** _none_
@@ -233,10 +232,10 @@ Every matched file is listed below with function and type symbol parity.
 ### 18. crc
 
 - **Target:** `flate2.Crc`
-- **Similarity:** 0.76
+- **Similarity:** 0.77
 - **Dependents:** 0
-- **Priority Score:** 1802.4
-- **Functions:** 15/15 matched (target 39)
+- **Priority Score:** 1802.3
+- **Functions:** 15/15 matched (target 37)
 - **Missing functions:** _none_
 - **Types:** 3/3 matched (target 5)
 - **Missing types:** _none_
