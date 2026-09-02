@@ -1,4 +1,4 @@
-// port-lint: tests tests/empty-read.rs
+// port-lint: tests empty-read.rs
 package io.github.kotlinmania.flate2
 
 import io.github.kotlinmania.flate2.deflate.DeflateDecoder

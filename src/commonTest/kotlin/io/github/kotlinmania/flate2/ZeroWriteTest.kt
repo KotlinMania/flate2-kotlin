@@ -1,4 +1,4 @@
-// port-lint: tests tests/zero-write.rs
+// port-lint: tests zero-write.rs
 package io.github.kotlinmania.flate2
 
 import io.github.kotlinmania.flate2.deflate.DeflateWriteEncoder

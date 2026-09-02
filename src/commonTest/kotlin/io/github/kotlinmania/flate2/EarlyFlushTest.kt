@@ -1,4 +1,4 @@
-// port-lint: tests tests/early-flush.rs
+// port-lint: tests early-flush.rs
 package io.github.kotlinmania.flate2
 
 import io.github.kotlinmania.flate2.gz.GzDecoder
