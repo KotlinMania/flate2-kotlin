@@ -5,9 +5,9 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 18/21 (85.7%)
-- **Function parity:** 144/325 matched (target 357) — 44.3%
+- **Function parity:** 144/325 matched (target 362) — 44.3%
 - **Class/type parity:** 22/62 matched (target 78) — 35.5%
-- **Combined symbol parity:** 166/387 matched (target 435) — 42.9%
+- **Combined symbol parity:** 166/387 matched (target 440) — 42.9%
 - **Average inline-code cosine:** 0.53 (function body across 14 matched files)
 - **Average documentation cosine:** 0.55 (doc text across 14 matched files)
 - **Cheat-zeroed Files:** 4
@@ -33,7 +33,7 @@ Every matched file is listed below with function and type symbol parity.
 - **Similarity:** 0.46
 - **Dependents:** 7
 - **Priority Score:** 7033305.5
-- **Functions:** 22/25 matched (target 71)
+- **Functions:** 22/25 matched (target 76)
 - **Missing functions:** `from`, `fmt`, `write_to_spare_capacity_of_vec`
 - **Types:** 8/8 matched (target 17)
 - **Missing types:** _none_
@@ -76,7 +76,7 @@ Every matched file is listed below with function and type symbol parity.
 ### 5. gz.bufread
 
 - **Target:** `gz.Bufread`
-- **Similarity:** 0.52
+- **Similarity:** 0.51
 - **Dependents:** 3
 - **Priority Score:** 3041804.8
 - **Functions:** 10/14 matched (target 28)
