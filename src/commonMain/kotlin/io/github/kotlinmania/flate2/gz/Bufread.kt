@@ -107,21 +107,27 @@ public class GzEncoder<R : BufferedSource> internal constructor(
      */
     public fun read(dst: ByteArray): Int {
         var amt = 0
-        var into = dst
         if (eof) {
             return readFooter(dst)
         } else if (headerPos < headerBytes.size) {
             val posArr = intArrayOf(headerPos)
-            amt += copy(into, headerBytes, posArr)
+            amt += copy(dst, headerBytes, posArr)
             headerPos = posArr[0]
-            if (amt >= into.size) return amt
-            into = into.copyOfRange(amt, into.size)
+            if (amt >= dst.size) return amt
         }
+        val into = if (amt == 0) dst else ByteArray(dst.size - amt)
         val n = inner.read(into)
+        if (amt > 0 && n > 0) {
+            into.copyInto(dst, destinationOffset = amt, startIndex = 0, endIndex = n)
+        }
         return if (n == 0) {
             eof = true
             headerPos = 0
-            val footer = readFooter(dst.copyOfRange(amt, dst.size))
+            val footerArr = if (amt == 0) dst else ByteArray(dst.size - amt)
+            val footer = readFooter(footerArr)
+            if (amt > 0 && footer > 0) {
+                footerArr.copyInto(dst, destinationOffset = amt, startIndex = 0, endIndex = footer)
+            }
             amt + footer
         } else {
             amt + n
