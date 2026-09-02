@@ -115,13 +115,16 @@ class CapabilitiesTest {
 
         val totalIn = decoder.totalIn().toInt()
         val totalOut = decoder.totalOut().toInt()
+        val outSlice = ByteArray(decoded.size - totalOut)
         val decompressResult =
             decoder.decompress(
                 encoded.toByteArray().copyOfRange(totalIn, encoded.size),
-                decoded.copyOfRange(totalOut, decoded.size),
+                outSlice,
                 FlushDecompress.Finish,
             )
         assertTrue(decompressResult.isSuccess)
+        val produced = decoder.totalOut().toInt() - totalOut
+        outSlice.copyInto(decoded, totalOut, 0, produced)
         assertContentEquals(string, decoded.copyOfRange(0, decoder.totalOut().toInt()))
     }
 
