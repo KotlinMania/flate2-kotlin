@@ -270,21 +270,22 @@ public class Decompress private constructor(
 
         if (input.isNotEmpty()) {
             pendingInput = pendingInput + input
-            totalInput += input.size.toULong()
         }
 
-        if (!finished && flush == FlushDecompress.Finish) {
-            val decompressed =
-                try {
-                    decodeDeflatePayload(pendingInput, format, dictionary)
-                } catch (error: NeedsDictionaryException) {
-                    return decompressNeedDict(error.adler)
-                } catch (error: Throwable) {
+        if (!finished) {
+            try {
+                val (decompressed, consumed) = decodeDeflatePayloadWithConsumed(pendingInput, format, dictionary)
+                totalInput += consumed.toULong()
+                pendingInput = pendingInput.copyOfRange(consumed, pendingInput.size)
+                pendingOutput = pendingOutput + decompressed
+                finished = true
+            } catch (error: NeedsDictionaryException) {
+                return decompressNeedDict(error.adler)
+            } catch (error: Throwable) {
+                if (flush == FlushDecompress.Finish) {
                     return decompressFailed(error.message)
                 }
-            pendingOutput = pendingOutput + decompressed
-            pendingInput = ByteArray(0)
-            finished = true
+            }
         }
 
         return Result.success(copyPendingOutput(output))
@@ -663,16 +664,23 @@ private fun encodeDeflatePayload(
     }
 }
 
+private fun decodeDeflatePayloadWithConsumed(
+    input: ByteArray,
+    format: StreamFormat,
+    dictionary: ByteArray?,
+): Pair<ByteArray, Int> =
+    when (format) {
+        StreamFormat.Raw -> inflateRawWithConsumed(input, dictionary)
+        StreamFormat.Zlib -> inflateZlibWithConsumed(input, dictionary)
+        StreamFormat.Gzip -> inflateGzipWithConsumed(input, dictionary)
+    }
+
 private fun decodeDeflatePayload(
     input: ByteArray,
     format: StreamFormat,
     dictionary: ByteArray?,
 ): ByteArray =
-    when (format) {
-        StreamFormat.Raw -> inflateRaw(input, dictionary)
-        StreamFormat.Zlib -> inflateZlib(input, dictionary)
-        StreamFormat.Gzip -> inflateGzip(input, dictionary)
-    }
+    decodeDeflatePayloadWithConsumed(input, format, dictionary).first
 
 private fun encodeStoredDeflate(input: ByteArray): ByteArray {
     val out = mutableListOf<Byte>()
@@ -695,7 +703,7 @@ private fun encodeStoredDeflate(input: ByteArray): ByteArray {
     return out.toByteArray()
 }
 
-private fun inflateRaw(input: ByteArray, dictionary: ByteArray?): ByteArray {
+private fun inflateRawWithConsumed(input: ByteArray, dictionary: ByteArray?): Pair<ByteArray, Int> {
     val reader = BitReader(input)
     val output = mutableListOf<Byte>()
     var finalBlock = false
@@ -711,8 +719,11 @@ private fun inflateRaw(input: ByteArray, dictionary: ByteArray?): ByteArray {
             else -> throw DeflateFormatException("invalid deflate block type $blockType")
         }
     }
-    return output.toByteArray()
+    return Pair(output.toByteArray(), reader.bytesConsumed())
 }
+
+private fun inflateRaw(input: ByteArray, dictionary: ByteArray?): ByteArray =
+    inflateRawWithConsumed(input, dictionary).first
 
 private fun inflateStoredBlock(reader: BitReader, output: MutableList<Byte>) {
     reader.alignToByte()
@@ -911,9 +922,11 @@ private class BitReader(
             readBits(drop)
         }
     }
+
+    fun bytesConsumed(): Int = byteIndex - (bitCount / 8)
 }
 
-private fun inflateZlib(input: ByteArray, dictionary: ByteArray?): ByteArray {
+private fun inflateZlibWithConsumed(input: ByteArray, dictionary: ByteArray?): Pair<ByteArray, Int> {
     if (input.size < 6) {
         throw DeflateFormatException("zlib stream is too short")
     }
@@ -936,20 +949,23 @@ private fun inflateZlib(input: ByteArray, dictionary: ByteArray?): ByteArray {
             throw NeedsDictionaryException(adler)
         }
     }
-    val compressedEnd = input.size - 4
-    if (compressedEnd < offset) {
+    val (output, rawConsumed) = inflateRawWithConsumed(input.copyOfRange(offset, input.size), dictionary)
+    val checksumOffset = offset + rawConsumed
+    if (input.size < checksumOffset + 4) {
         throw DeflateFormatException("zlib stream is missing checksum")
     }
-    val output = inflateRaw(input.copyOfRange(offset, compressedEnd), dictionary)
-    val expected = readBigEndianUInt(input, compressedEnd)
+    val expected = readBigEndianUInt(input, checksumOffset)
     val actual = adler32(output)
     if (expected != actual) {
         throw DeflateFormatException("zlib checksum mismatch")
     }
-    return output
+    return Pair(output, checksumOffset + 4)
 }
 
-private fun inflateGzip(input: ByteArray, dictionary: ByteArray?): ByteArray {
+private fun inflateZlib(input: ByteArray, dictionary: ByteArray?): ByteArray =
+    inflateZlibWithConsumed(input, dictionary).first
+
+private fun inflateGzipWithConsumed(input: ByteArray, dictionary: ByteArray?): Pair<ByteArray, Int> {
     if (input.size < 18) {
         throw DeflateFormatException("gzip stream is too short")
     }
@@ -981,13 +997,13 @@ private fun inflateGzip(input: ByteArray, dictionary: ByteArray?): ByteArray {
         ensureAvailable(input, offset, 2, "gzip header checksum")
         offset += 2
     }
-    val compressedEnd = input.size - 8
-    if (compressedEnd < offset) {
+    val (output, rawConsumed) = inflateRawWithConsumed(input.copyOfRange(offset, input.size), dictionary)
+    val trailerOffset = offset + rawConsumed
+    if (input.size < trailerOffset + 8) {
         throw DeflateFormatException("gzip stream is missing trailer")
     }
-    val output = inflateRaw(input.copyOfRange(offset, compressedEnd), dictionary)
-    val expectedCrc = readLittleEndianUInt(input, compressedEnd)
-    val expectedSize = readLittleEndianUInt(input, compressedEnd + 4)
+    val expectedCrc = readLittleEndianUInt(input, trailerOffset)
+    val expectedSize = readLittleEndianUInt(input, trailerOffset + 4)
     val actualCrc = crc32(output)
     if (expectedCrc != actualCrc) {
         throw DeflateFormatException("gzip checksum mismatch")
@@ -995,8 +1011,11 @@ private fun inflateGzip(input: ByteArray, dictionary: ByteArray?): ByteArray {
     if (expectedSize != output.size.toUInt()) {
         throw DeflateFormatException("gzip uncompressed size mismatch")
     }
-    return output
+    return Pair(output, trailerOffset + 8)
 }
+
+private fun inflateGzip(input: ByteArray, dictionary: ByteArray?): ByteArray =
+    inflateGzipWithConsumed(input, dictionary).first
 
 private fun zlibHeader(level: Compression, dictionary: ByteArray?): ByteArray {
     val cmf = 0x78
