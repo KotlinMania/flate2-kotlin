@@ -245,6 +245,10 @@ public class GzDecoder<R : BufferedSource> internal constructor(
                         val remaining = CRC_BYTES_LEN - s.pos
                         val bufData = inner.fillBuffer()
                         val avail = minOf(remaining, bufData.size)
+                        if (avail == 0) {
+                            state = GzState.End(s.header)
+                            return 0
+                        }
                         bufData.copyInto(s.buf, s.pos, 0, avail)
                         s.pos += avail
                         inner.consume(avail)
