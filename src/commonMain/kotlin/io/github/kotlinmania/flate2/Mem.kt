@@ -675,13 +675,6 @@ private fun decodeDeflatePayloadWithConsumed(
         StreamFormat.Gzip -> inflateGzipWithConsumed(input, dictionary)
     }
 
-private fun decodeDeflatePayload(
-    input: ByteArray,
-    format: StreamFormat,
-    dictionary: ByteArray?,
-): ByteArray =
-    decodeDeflatePayloadWithConsumed(input, format, dictionary).first
-
 private fun encodeStoredDeflate(input: ByteArray): ByteArray {
     val out = mutableListOf<Byte>()
     var offset = 0
@@ -710,20 +703,26 @@ private fun inflateRawWithConsumed(input: ByteArray, dictionary: ByteArray?): Pa
     while (!finalBlock) {
         finalBlock = reader.readBits(1) == 1
         when (val blockType = reader.readBits(2)) {
-            0 -> inflateStoredBlock(reader, output)
-            1 -> inflateCompressedBlock(reader, output, fixedLiteralLengthTree(), fixedDistanceTree(), dictionary)
+            0 -> {
+                inflateStoredBlock(reader, output)
+            }
+
+            1 -> {
+                inflateCompressedBlock(reader, output, fixedLiteralLengthTree(), fixedDistanceTree(), dictionary)
+            }
+
             2 -> {
                 val trees = dynamicTrees(reader)
                 inflateCompressedBlock(reader, output, trees.literalLength, trees.distance, dictionary)
             }
-            else -> throw DeflateFormatException("invalid deflate block type $blockType")
+
+            else -> {
+                throw DeflateFormatException("invalid deflate block type $blockType")
+            }
         }
     }
     return Pair(output.toByteArray(), reader.bytesConsumed())
 }
-
-private fun inflateRaw(input: ByteArray, dictionary: ByteArray?): ByteArray =
-    inflateRawWithConsumed(input, dictionary).first
 
 private fun inflateStoredBlock(reader: BitReader, output: MutableList<Byte>) {
     reader.alignToByte()
@@ -746,8 +745,14 @@ private fun inflateCompressedBlock(
 ) {
     while (true) {
         when (val symbol = literalLength.decode(reader)) {
-            in 0..255 -> output += symbol.toByte()
-            256 -> return
+            in 0..255 -> {
+                output += symbol.toByte()
+            }
+
+            256 -> {
+                return
+            }
+
             in 257..285 -> {
                 val lengthIndex = symbol - 257
                 val length = lengthBases[lengthIndex] + reader.readBits(lengthExtraBits[lengthIndex])
@@ -760,7 +765,10 @@ private fun inflateCompressedBlock(
                     output += byteAtDistance(copyDistance, output, dictionary)
                 }
             }
-            else -> throw DeflateFormatException("invalid deflate literal symbol $symbol")
+
+            else -> {
+                throw DeflateFormatException("invalid deflate literal symbol $symbol")
+            }
         }
     }
 }
@@ -799,7 +807,10 @@ private fun dynamicTrees(reader: BitReader): DynamicTrees {
     val totalCount = literalLengthCount + distanceCount
     while (lengths.size < totalCount) {
         when (val symbol = codeLengthTree.decode(reader)) {
-            in 0..15 -> lengths += symbol
+            in 0..15 -> {
+                lengths += symbol
+            }
+
             16 -> {
                 if (lengths.isEmpty()) {
                     throw DeflateFormatException("repeat code appeared before any code length")
@@ -807,15 +818,20 @@ private fun dynamicTrees(reader: BitReader): DynamicTrees {
                 val repeatCount = reader.readBits(2) + 3
                 repeat(repeatCount) { lengths += lengths.last() }
             }
+
             17 -> {
                 val repeatCount = reader.readBits(3) + 3
                 repeat(repeatCount) { lengths += 0 }
             }
+
             18 -> {
                 val repeatCount = reader.readBits(7) + 11
                 repeat(repeatCount) { lengths += 0 }
             }
-            else -> throw DeflateFormatException("invalid code length symbol $symbol")
+
+            else -> {
+                throw DeflateFormatException("invalid code length symbol $symbol")
+            }
         }
         if (lengths.size > totalCount) {
             throw DeflateFormatException("dynamic code lengths overran their declared size")
@@ -962,9 +978,6 @@ private fun inflateZlibWithConsumed(input: ByteArray, dictionary: ByteArray?): P
     return Pair(output, checksumOffset + 4)
 }
 
-private fun inflateZlib(input: ByteArray, dictionary: ByteArray?): ByteArray =
-    inflateZlibWithConsumed(input, dictionary).first
-
 private fun inflateGzipWithConsumed(input: ByteArray, dictionary: ByteArray?): Pair<ByteArray, Int> {
     if (input.size < 18) {
         throw DeflateFormatException("gzip stream is too short")
@@ -1013,9 +1026,6 @@ private fun inflateGzipWithConsumed(input: ByteArray, dictionary: ByteArray?): P
     }
     return Pair(output, trailerOffset + 8)
 }
-
-private fun inflateGzip(input: ByteArray, dictionary: ByteArray?): ByteArray =
-    inflateGzipWithConsumed(input, dictionary).first
 
 private fun zlibHeader(level: Compression, dictionary: ByteArray?): ByteArray {
     val cmf = 0x78
@@ -1132,10 +1142,13 @@ private fun skipZeroTerminated(input: ByteArray, start: Int, description: String
 
 private fun decompressDisplayMessage(inner: DecompressErrorInner): String =
     when (inner) {
-        is DecompressErrorInner.General ->
+        is DecompressErrorInner.General -> {
             inner.message?.let { "deflate decompression error: $it" } ?: "deflate decompression error"
-        is DecompressErrorInner.NeedsDictionary ->
+        }
+
+        is DecompressErrorInner.NeedsDictionary -> {
             "deflate decompression error: requires a dictionary"
+        }
     }
 
 private fun compressDisplayMessage(message: String?): String =

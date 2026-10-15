@@ -242,6 +242,7 @@ public class GzHeaderParser private constructor(
                         )
                     currentState = GzHeaderState.Xlen(crc = crc)
                 }
+
                 is GzHeaderState.Xlen -> {
                     if (flags and FEXTRA != 0) {
                         val buf = s.buffer.copyOf()
@@ -270,6 +271,7 @@ public class GzHeaderParser private constructor(
                         currentState = GzHeaderState.Filename(crc = s.crc)
                     }
                 }
+
                 is GzHeaderState.Extra -> {
                     val extra = header.extra!!
                     var count = s.count
@@ -285,6 +287,7 @@ public class GzHeaderParser private constructor(
                     s.crc?.update(extra)
                     currentState = GzHeaderState.Filename(crc = s.crc)
                 }
+
                 is GzHeaderState.Filename -> {
                     if (flags and FNAME != 0) {
                         val filenameBuf = mutableListOf<Byte>()
@@ -302,6 +305,7 @@ public class GzHeaderParser private constructor(
                     }
                     currentState = GzHeaderState.Comment(crc = s.crc)
                 }
+
                 is GzHeaderState.Comment -> {
                     if (flags and FCOMMENT != 0) {
                         val commentBuf = mutableListOf<Byte>()
@@ -319,6 +323,7 @@ public class GzHeaderParser private constructor(
                     }
                     currentState = GzHeaderState.Crc16(crc = s.crc)
                 }
+
                 is GzHeaderState.Crc16 -> {
                     if (s.crc != null) {
                         val buf = s.buffer.copyOf()
@@ -340,7 +345,10 @@ public class GzHeaderParser private constructor(
                     }
                     currentState = GzHeaderState.Complete
                 }
-                is GzHeaderState.Complete -> break@parsing
+
+                is GzHeaderState.Complete -> {
+                    break@parsing
+                }
             }
         }
         state = currentState
