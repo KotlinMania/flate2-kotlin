@@ -6,7 +6,9 @@ import kotlin.test.Test
 import kotlin.test.assertFails
 
 class ZeroWriteTest {
-    private class FixedBufferSink(private val capacity: Int) : OutputSink {
+    private class FixedBufferSink(
+        private val capacity: Int,
+    ) : OutputSink {
         private var pos = 0
 
         override fun write(source: ByteArray, offset: Int, length: Int): Int {

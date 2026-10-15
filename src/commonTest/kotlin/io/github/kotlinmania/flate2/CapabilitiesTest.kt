@@ -155,12 +155,14 @@ class CapabilitiesTest {
         val input = "hello hello hello hello hello hello hello hello".encodeToByteArray()
 
         val encodedNone = mutableListOf<Byte>()
-        Compress.new(Compression.none(), true)
+        Compress
+            .new(Compression.none(), true)
             .compressVec(input, encodedNone, FlushCompress.Finish)
             .getOrThrow()
 
         val encodedBest = mutableListOf<Byte>()
-        Compress.new(Compression.best(), true)
+        Compress
+            .new(Compression.best(), true)
             .compressVec(input, encodedBest, FlushCompress.Finish)
             .getOrThrow()
 

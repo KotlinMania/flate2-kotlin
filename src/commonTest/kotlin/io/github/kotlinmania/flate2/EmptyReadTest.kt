@@ -30,7 +30,9 @@ class EmptyReadTest {
         fun toByteArray(): ByteArray = buffer.toByteArray()
     }
 
-    private class ByteArraySource(private val bytes: ByteArray) : BufferedSource {
+    private class ByteArraySource(
+        private val bytes: ByteArray,
+    ) : BufferedSource {
         private var pos = 0
 
         override fun read(sink: ByteArray, offset: Int, length: Int): Int {
