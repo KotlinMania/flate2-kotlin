@@ -235,6 +235,7 @@ public class GzDecoder<R : BufferedSource> internal constructor(
                     inner.consume(consumed)
                     state = GzState.Body(parser.header()!!)
                 }
+
                 is GzState.Body -> {
                     if (dst.isEmpty()) return 0
                     val n = reader.read(dst)
@@ -244,6 +245,7 @@ public class GzDecoder<R : BufferedSource> internal constructor(
                         return n
                     }
                 }
+
                 is GzState.Finished -> {
                     val s = state as GzState.Finished
                     if (s.pos < CRC_BYTES_LEN) {
@@ -279,12 +281,16 @@ public class GzDecoder<R : BufferedSource> internal constructor(
                         }
                     }
                 }
+
                 is GzState.Err -> {
                     val err = (state as GzState.Err).error
                     state = GzState.End(null)
                     throw err
                 }
-                is GzState.End -> return 0
+
+                is GzState.End -> {
+                    return 0
+                }
             }
         }
     }

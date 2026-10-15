@@ -367,6 +367,7 @@ public fun readThroughCodec(
                 }
                 return read
             }
+
             is CodecResult.Failure -> {
                 throw DeflateFormatException(ret.message ?: "corrupt deflate stream")
             }
