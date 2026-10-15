@@ -79,7 +79,7 @@ val n = encoder.read(compressed)
 | Linux x64/arm64   | Full support                           |
 | Windows mingw-x64 | Full support                           |
 | Android           | API 24+ (KMP library)                  |
-| Android Native    | arm32, arm64, x64, x86                 |
+| Android Native    | arm64, x64                             |
 | JS                | Browser + Node.js                      |
 | Wasm-JS           | Browser + Node.js                      |
 | Wasm-WASI         | Node.js                                |
